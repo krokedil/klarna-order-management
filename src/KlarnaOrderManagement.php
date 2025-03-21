@@ -21,6 +21,7 @@ use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostRefund;
 use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCapture;
 use Krokedil\KlarnaOrderManagement\Request\Patch\RequestPatchUpdate;
 use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCancel;
+use Krokedil\KlarnaOrderManagement\MetaBox;
 
 /**
  * Klarna Order Management class.
@@ -42,6 +43,13 @@ class KlarnaOrderManagement {
 	 * @var Settings $settings
 	 */
 	public $settings;
+
+	/**
+	 * Klarna Order Management metabox.
+	 *
+	 * @var MetaBox $metabox
+	 */
+	public $metabox;
 
 	/**
 	 * Returns the *Singleton* instance of this class.
@@ -90,6 +98,7 @@ class KlarnaOrderManagement {
 	 */
 	public function init() {
 		$this->settings = new Settings();
+		$this->metabox  = new MetaBox();
 
 		// If Klarna Order Management is an unavailable feature, do not include the rest of the plugin.
 		$kp_unavailable_feature_ids = get_option( 'kp_unavailable_feature_ids', array() );
