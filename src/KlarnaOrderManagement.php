@@ -1,5 +1,6 @@
 <?php
-namespace Krokedil\KlarnaOrderManagement;
+
+namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -8,7 +9,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.9.4' );
+define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.0.0' );
+
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_PHP_VER', '5.3.0' );
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_WC_VER', '3.3.0' );
 define( 'KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
@@ -70,8 +72,8 @@ class KlarnaOrderManagement {
 	 * Protected constructor to prevent creating a new instance of the
 	 * *Singleton* via the `new` operator from outside of this class.
 	 */
-	protected function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'init' ) );
+	public function __construct() {
+		$this->init();
 
 		// Add action links.
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
@@ -81,26 +83,34 @@ class KlarnaOrderManagement {
 	 * Init the plugin at plugins_loaded.
 	 */
 	public function init() {
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/includes/klarna-order-management-functions.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-settings.php';
+		$this->settings = new WC_Klarna_Order_Management_Settings();
 
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-sellers-app.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-pending-orders.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-settings.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-meta-box.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-order-lines.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-logger.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request.php';
+		// If Klarna Order Management is an unavailable feature, do not include the rest of the plugin.
+		$kp_unavailable_feature_ids = get_option( 'kp_unavailable_feature_ids', array() );
+		if ( in_array( 'kom', $kp_unavailable_feature_ids, true ) ) {
+			return;
+		}
 
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-get.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/get/class-kom-request-get-order.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/includes/klarna-order-management-functions.php';
 
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-patch.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/patch/class-kom-request-patch-update.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-sellers-app.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-pending-orders.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-meta-box.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-order-lines.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-logger.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request.php';
 
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-post.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-cancel.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-capture.php';
-		include_once KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-refund.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-get.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/get/class-kom-request-get-order.php';
+
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-patch.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/patch/class-kom-request-patch-update.php';
+
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-post.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-cancel.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-capture.php';
+		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-refund.php';
 
 		// Add refunds support to Klarna Payments and Klarna Checkout gateways.
 		add_action( 'wc_klarna_payments_supports', array( $this, 'add_gateway_support' ) );
@@ -131,8 +141,6 @@ class KlarnaOrderManagement {
 		);
 
 		add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
-		$this->settings = new Settings();
-
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin' ) );
 	}
 
@@ -142,8 +150,8 @@ class KlarnaOrderManagement {
 	 * @return void
 	 */
 	public function enqueue_admin() {
-		wp_enqueue_style( 'kom-admin-style', KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL . '/assets/css/klarna-order-management.css', array(), KLARNA_ORDER_MANAGEMENT_VERSION );
-		wp_enqueue_script( 'kom-admin-js', KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL . '/assets/js/klarna-order-management.js', array( 'jquery' ), KLARNA_ORDER_MANAGEMENT_VERSION, true );
+		wp_enqueue_style( 'kom-admin-style', plugin_dir_url( __FILE__ ) . '/assets/css/klarna-order-management.css', array(), '1.0.0' );
+		wp_enqueue_script( 'kom-admin-js', plugin_dir_url( __FILE__ ) . '/assets/js/klarna-order-management.js', array( 'jquery' ), '1.0.0', true );
 	}
 
 

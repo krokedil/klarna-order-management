@@ -3,7 +3,7 @@
     "name": "krokedil/klarna-order-management",
     "description": "Klarna Order Management",
     "type": "library",
-    "version": "1.3.1",
+    "version": "1.0.0",
     "require-dev": {
         "php-stubs/woocommerce-stubs": "^8.3",
         "10up/wp_mock": "^1.0",

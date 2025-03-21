@@ -1,5 +1,5 @@
 <?php
-namespace Krokedil\KlarnaOrderManagement\Request;
+namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement\Request;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -77,7 +77,7 @@ abstract class Request {
 	 * @return array
 	 */
 	private function get_settings() {
-		return WC_Klarna_Order_Management::get_instance()->settings->get_settings( $this->order_id );
+		return KlarnaOrderManagement::get_instance()->settings->get_settings( $this->order_id );
 	}
 
 	/**

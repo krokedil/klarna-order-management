@@ -1,5 +1,5 @@
 <?php
-namespace Krokedil\KlarnaOrderManagement\Request;
+namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement\Request;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
