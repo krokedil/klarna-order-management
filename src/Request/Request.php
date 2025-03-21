@@ -235,14 +235,14 @@ abstract class Request {
 	protected function calculate_auth() {
 		$variant = $this->get_klarna_variant();
 		if ( ! $variant ) {
-			return new WP_Error( 'wrong_gateway', 'This order was not create via Klarna Payments or Klarna Checkout for WooCommerce.' );
+			return new \WP_Error( 'wrong_gateway', 'This order was not create via Klarna Payments or Klarna Checkout for WooCommerce.' );
 		}
 		$gateway_title = 'kco' === $variant ? 'Klarna Checkout' : 'Klarna Payments';
 
 		$merchant_id   = $this->get_auth_component( 'merchant_id' );
 		$shared_secret = $this->get_auth_component( 'shared_secret' );
 		if ( '' === $merchant_id || '' === $shared_secret ) {
-			return new WP_Error( 'missing_credentials', "{$gateway_title} credentials are missing" );
+			return new \WP_Error( 'missing_credentials', "{$gateway_title} credentials are missing" );
 		}
 		return 'Basic ' . base64_encode( $merchant_id . ':' . htmlspecialchars_decode( $shared_secret ) );
 	}
@@ -309,7 +309,7 @@ abstract class Request {
 			if ( null !== $body && property_exists( $body, 'error_messages' ) ) {
 				$error_message = join( ' ', $body->error_messages );
 			}
-			$processed_response = new WP_Error( $response_code, $error_message, $data );
+			$processed_response = new \WP_Error( $response_code, $error_message, $data );
 		} else { // Response is *not* an error!
 			$processed_response = $body;
 

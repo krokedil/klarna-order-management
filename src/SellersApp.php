@@ -160,14 +160,14 @@ class SellersApp {
 						'total'        => ( $cart_item->total_amount - $cart_item->total_tax_amount ) / 100,
 						'quantity'     => $cart_item->quantity,
 					);
-					$item    = new WC_Order_Item_Product();
+					$item    = new \WC_Order_Item_Product();
 					$item->set_props( $args );
 					$item->set_backorder_meta();
 					$item->set_order_id( $order->get_id() );
 					$item->save();
 					$order->add_item( $item );
 
-				} catch ( Exception $e ) {
+				} catch ( \Exception $e ) {
 					Logger::log( 'Error during process order lines. Add to cart error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
 				}
 			}
@@ -176,8 +176,8 @@ class SellersApp {
 				try {
 					$method_id   = substr( $cart_item->reference, 0, strpos( $cart_item->reference, ':' ) );
 					$instance_id = substr( $cart_item->reference, strpos( $cart_item->reference, ':' ) + 1 );
-					$rate        = new WC_Shipping_Rate( $cart_item->reference, $cart_item->name, ( $cart_item->total_amount - $cart_item->total_tax_amount ) / 100, array(), $method_id, $instance_id );
-					$item        = new WC_Order_Item_Shipping();
+					$rate        = new \WC_Shipping_Rate( $cart_item->reference, $cart_item->name, ( $cart_item->total_amount - $cart_item->total_tax_amount ) / 100, array(), $method_id, $instance_id );
+					$item        = new \WC_Order_Item_Shipping();
 					$item->set_props(
 						array(
 							'method_title' => $rate->label,
@@ -188,7 +188,7 @@ class SellersApp {
 						)
 					);
 					$order->add_item( $item );
-				} catch ( Exception $e ) {
+				} catch ( \Exception $e ) {
 					Logger::log( 'Error during process order lines. Add shipping error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
 				}
 			}
@@ -207,10 +207,10 @@ class SellersApp {
 						'total'     => ( $cart_item->total_amount - $cart_item->total_tax_amount ) / 100,
 						'quantity'  => $cart_item->quantity,
 					);
-					$fee  = new WC_Order_Item_Fee();
+					$fee  = new \WC_Order_Item_Fee();
 					$fee->set_props( $args );
 					$order->add_item( $fee );
-				} catch ( Exception $e ) {
+				} catch ( \Exception $e ) {
 					Logger::log( 'Error during process order lines. Add fee error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
 				}
 			}

@@ -159,7 +159,7 @@ class OrderLines {
 		foreach ( $order->get_items( 'coupon' ) as $order_item ) {
 
 			/* Only smart coupons are added to the capture order lines, or if the merchant is a Klarna US merchant. */
-			$coupon = new WC_Coupon( $order_item->get_name() );
+			$coupon = new \WC_Coupon( $order_item->get_name() );
 			if ( 'smart_coupon' === $coupon->get_discount_type() || 'US' === $this->klarna_country ) {
 				$this->order_lines[] = $this->process_order_item_coupon( $order_item, $order );
 			}
@@ -286,7 +286,7 @@ class OrderLines {
 			'total_tax_amount'      => $this->get_item_tax_amount( $order_item ),
 		);
 
-		$coupon = new WC_Coupon( $order_item->get_name() );
+		$coupon = new \WC_Coupon( $order_item->get_name() );
 
 		// @TODO: For now, only send smart coupons as separate items, needs to include all coupons for US
 		if ( 'smart_coupon' === $coupon->get_discount_type() ) {
