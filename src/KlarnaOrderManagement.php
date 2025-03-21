@@ -290,7 +290,7 @@ class KlarnaOrderManagement {
 
 		// Are we on the subscription page?
 		if ( 'shop_subscription' === $order->get_type() ) {
-			$token_key = 'klarna_payments' === $order->get_payment_method() ? KP_Subscription::RECURRING_TOKEN : '_kco_recurring_token';
+			$token_key = 'klarna_payments' === $order->get_payment_method() ? \KP_Subscription::RECURRING_TOKEN : '_kco_recurring_token';
 
 			// Did the customer update the subscription's recurring token?
 			$recurring_token = wc_get_var( $items[ $token_key ] );
