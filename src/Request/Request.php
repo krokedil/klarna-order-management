@@ -1,5 +1,8 @@
 <?php
-namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement\Request;
+namespace Krokedil\KlarnaOrderManagement\Request;
+
+use Krokedil\KlarnaOrderManagement\KlarnaOrderManagement;
+use Krokedil\KlarnaOrderManagement\Logger;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -201,7 +204,7 @@ abstract class Request {
 			'http_headers_useragent',
 			'WordPress/' . get_bloginfo( 'version' ) . '; ' . get_bloginfo( 'url' )
 			. ' - WooCommerce: ' . WC()->version
-			. ' - OM: ' . WC_KLARNA_ORDER_MANAGEMENT_VERSION
+			. ' - OM: ' . \KLARNA_ORDER_MANAGEMENT_VERSION
 			. ' - PHP Version: ' . phpversion()
 			. ' - Krokedil'
 		);
@@ -361,7 +364,7 @@ abstract class Request {
 	 * @return void
 	 */
 	protected function log_response( $response, $request_args, $code ) {
-		$log = WC_Klarna_Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
-		WC_Klarna_Logger::log( $log, $this->order_id );
+		$log = Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
+		Logger::log( $log, $this->order_id );
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement;
+namespace Krokedil\KlarnaOrderManagement;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -104,7 +104,7 @@ class SellersApp {
 
 		$order->save();
 
-		$order->add_order_note( __( 'Order address updated by Klarna Order management.', 'klarna-order-management-for-woocommerce' ) );
+		$order->add_order_note( __( 'Order address updated by Klarna Order management.', 'klarna-order-management' ) );
 	}
 
 	/**

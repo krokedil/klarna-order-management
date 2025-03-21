@@ -6,8 +6,8 @@ module.exports = function(grunt) {
             target: {
                 options: {
                     domainPath: '/languages',
-                    mainFile: 'klarna-order-management-for-woocommerce',
-                    potFilename: 'klarna-order-management-for-woocommerce.pot',
+                    mainFile: 'klarna-order-management',
+                    potFilename: 'klarna-order-management.pot',
                     processPot(pot, options) {
                         // add header options
                         return pot;

@@ -1,7 +1,9 @@
 <?php
-namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement\Request\Post;
+namespace Krokedil\KlarnaOrderManagement\Request\Post;
 
-use KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement\Request\RequestPost;
+use Krokedil\KlarnaOrderManagement\Request\RequestPost;
+use Krokedil\KlarnaOrderManagement\OrderLines;
+use Krokedil\KlarnaOrderManagement\Utility;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -106,7 +108,7 @@ class RequestPostRefund extends RequestPost {
 						if ( $item->get_product_id() === $order_item->get_product_id() ) {
 							$order_line_total    = round( ( $order->get_line_subtotal( $order_item, false ) * 100 ) );
 							$order_line_tax      = round( ( $order->get_line_tax( $order_item ) * 100 ) );
-							$tax_rates           = WC_Tax::get_base_tax_rates( $order_item->get_tax_class() );
+							$tax_rates           = \WC_Tax::get_base_tax_rates( $order_item->get_tax_class() );
 							$order_line_tax_rate = ( 0 !== $order_line_tax && 0 !== $order_line_total ) ? reset( $tax_rates )['rate'] * 100 ?? round( ( $order_line_tax / $order_line_total ) * 100 * 100 ) : 0;
 						}
 					}
@@ -204,8 +206,8 @@ class RequestPostRefund extends RequestPost {
 				// Add sales tax line item.
 				$sales_tax = array(
 					'type'                  => 'sales_tax',
-					'reference'             => __( 'Sales Tax', 'klarna-payments-for-woocommerce' ),
-					'name'                  => __( 'Sales Tax', 'klarna-payments-for-woocommerce' ),
+					'reference'             => __( 'Sales Tax', 'klarna-order-management' ),
+					'name'                  => __( 'Sales Tax', 'klarna-order-management' ),
 					'quantity'              => 1,
 					'unit_price'            => $sales_tax_amount,
 					'tax_rate'              => 0,

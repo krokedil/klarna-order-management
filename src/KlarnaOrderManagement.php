@@ -1,6 +1,6 @@
 <?php
 
-namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement;
+namespace Krokedil\KlarnaOrderManagement;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,8 +13,14 @@ define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.0.0' );
 
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_PHP_VER', '5.3.0' );
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_WC_VER', '3.3.0' );
-define( 'KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
 define( 'KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL', untrailingslashit( plugins_url( '/', __FILE__ ) ) );
+
+use Krokedil\KlarnaOrderManagement\Settings;
+use Krokedil\KlarnaOrderManagement\Request\Get\RequestGetOrder;
+use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostRefund;
+use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCapture;
+use Krokedil\KlarnaOrderManagement\Request\Patch\RequestPatchUpdate;
+use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCancel;
 
 /**
  * Klarna Order Management class.
@@ -83,34 +89,13 @@ class KlarnaOrderManagement {
 	 * Init the plugin at plugins_loaded.
 	 */
 	public function init() {
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-settings.php';
-		$this->settings = new WC_Klarna_Order_Management_Settings();
+		$this->settings = new Settings();
 
 		// If Klarna Order Management is an unavailable feature, do not include the rest of the plugin.
 		$kp_unavailable_feature_ids = get_option( 'kp_unavailable_feature_ids', array() );
 		if ( in_array( 'kom', $kp_unavailable_feature_ids, true ) ) {
 			return;
 		}
-
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/includes/klarna-order-management-functions.php';
-
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-sellers-app.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-pending-orders.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-meta-box.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-order-management-order-lines.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/class-wc-klarna-logger.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request.php';
-
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-get.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/get/class-kom-request-get-order.php';
-
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-patch.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/patch/class-kom-request-patch-update.php';
-
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/class-kom-request-post.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-cancel.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-capture.php';
-		include_once WC_KLARNA_ORDER_MANAGEMENT_PLUGIN_PATH . '/classes/request/post/class-kom-request-post-refund.php';
 
 		// Add refunds support to Klarna Payments and Klarna Checkout gateways.
 		add_action( 'wc_klarna_payments_supports', array( $this, 'add_gateway_support' ) );
@@ -179,11 +164,11 @@ class KlarnaOrderManagement {
 		$plugin_links = array();
 
 		if ( class_exists( 'KCO' ) ) {
-			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=kco' ) . '">' . __( 'Settings (Klarna Checkout)', 'klarna-order-management-for-woocommerce' ) . '</a>';
+			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=kco' ) . '">' . __( 'Settings (Klarna Checkout)', 'klarna-order-management' ) . '</a>';
 		}
 
 		if ( class_exists( 'WC_Klarna_Payments' ) ) {
-			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=klarna_payments' ) . '">' . __( 'Settings (Klarna Payments)', 'klarna-order-management-for-woocommerce' ) . '</a>';
+			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=klarna_payments' ) . '">' . __( 'Settings (Klarna Payments)', 'klarna-order-management' ) . '</a>';
 		}
 
 		$plugin_links[] = '<a target="_blank" href="https://docs.krokedil.com/article/149-klarna-order-management">Docs</a>';
@@ -306,7 +291,7 @@ class KlarnaOrderManagement {
 				$order->add_order_note(
 					sprintf(
 					// translators: 1: User name, 2: Existing token, 3: New token.
-						__( '%1$s updated the subscription recurring token from "%2$s" to "%3$s".', 'klarna-order-management-for-woocommerce' ),
+						__( '%1$s updated the subscription recurring token from "%2$s" to "%3$s".', 'klarna-order-management' ),
 						ucfirst( wp_get_current_user()->display_name ),
 						$existing_token,
 						$recurring_token
@@ -361,9 +346,9 @@ class KlarnaOrderManagement {
 					$reason = $response->get_error_message();
 					if ( ! empty( $reason ) ) {
 						// translators: %s: error message from Klarna.
-						$order_note = sprintf( __( 'Could not update Klarna order lines: %s.', 'klarna-order-management-for-woocommerce' ), $reason );
+						$order_note = sprintf( __( 'Could not update Klarna order lines: %s.', 'klarna-order-management' ), $reason );
 					} else {
-						$order_note = __( 'Could not update Klarna order lines. An unknown error occurred.', 'klarna-order-management-for-woocommerce' );
+						$order_note = __( 'Could not update Klarna order lines. An unknown error occurred.', 'klarna-order-management' );
 					}
 
 					$order->add_order_note( $order_note );
@@ -467,7 +452,7 @@ class KlarnaOrderManagement {
 
 					/* The suggested approach by Klarna is to try again after some time. If that still fails, the merchant should inform the customer, and ask them to either "create a new subscription or add funds to their payment method if they wish to continue." */
 					if ( isset( $response->get_error_data()['code'] ) && 403 === $response->get_error_data()['code'] && 'PAYMENT_METHOD_FAILED' === $response->get_error_code() ) {
-						$order->update_status( 'on-hold', __( 'Klarna could not charge the customer. Please try again later. If that still fails, the customer may have to create a new subscription or add funds to their payment method if they wish to continue.', 'klarna-order-management-for-woocommerce' ) );
+						$order->update_status( 'on-hold', __( 'Klarna could not charge the customer. Please try again later. If that still fails, the customer may have to create a new subscription or add funds to their payment method if they wish to continue.', 'klarna-order-management' ) );
 						return new \WP_Error( 'capture_failed', 'Capture failed. Please try again later.' );
 					} else {
 						$error_message = $response->get_error_message();
@@ -477,7 +462,7 @@ class KlarnaOrderManagement {
 						}
 
 						// translators: %s: Error message from Klarna.
-						$order->update_status( 'on-hold', sprintf( __( 'Could not capture Klarna order. %s', 'klarna-order-management-for-woocommerce' ), $error_message ) );
+						$order->update_status( 'on-hold', sprintf( __( 'Could not capture Klarna order. %s', 'klarna-order-management' ), $error_message ) );
 						return new \WP_Error( 'capture_failed', 'Capture failed.', $error_message );
 					}
 				}

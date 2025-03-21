@@ -1,5 +1,5 @@
 <?php
-namespace KrokedilKlarnaPaymentsDeps\KlarnaOrderManagement;
+namespace Krokedil\KlarnaOrderManagement;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -36,7 +36,7 @@ class Logger {
 			if ( empty( self::$log ) ) {
 				self::$log = new Logger();
 			}
-			self::$log->add( 'klarna-order-management-for-woocommerce', wp_json_encode( $message ) );
+			self::$log->add( 'klarna-order-management', wp_json_encode( $message ) );
 		}
 	}
 	/**
@@ -75,7 +75,7 @@ class Logger {
 			),
 			'timestamp'      => date( 'Y-m-d H:i:s' ), // phpcs:ignore WordPress.DateTime.RestrictedFunctions -- Date is not used for display.
 			'stack'          => self::get_stack(),
-			'plugin_version' => KLARNA_ORDER_MANAGEMENT_VERSION,
+			'plugin_version' => \KLARNA_ORDER_MANAGEMENT_VERSION,
 		);
 	}
 
