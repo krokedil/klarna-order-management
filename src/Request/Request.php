@@ -80,7 +80,8 @@ abstract class Request {
 	 * @return array
 	 */
 	private function get_settings() {
-		return KlarnaOrderManagement::get_instance()->settings->get_settings( $this->order_id );
+		$kom = new KlarnaOrderManagement();
+		return $kom->settings->get_settings( $this->order_id );
 	}
 
 	/**

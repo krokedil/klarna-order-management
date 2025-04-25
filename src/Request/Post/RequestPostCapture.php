@@ -39,7 +39,8 @@ class RequestPostCapture extends RequestPost {
 	 */
 	protected function get_body() {
 		// If force full capture is enabled, set to true.
-		$settings                 = KlarnaOrderManagement::get_instance()->settings->get_settings( $this->order_id );
+		$kom                      = new KlarnaOrderManagement();
+		$settings                 = $kom->settings->get_settings( $this->order_id );
 		$force_capture_full_order = ( isset( $settings['kom_force_full_capture'] ) && 'yes' === $settings['kom_force_full_capture'] ) ? true : false;
 		$order                    = wc_get_order( $this->order_id );
 

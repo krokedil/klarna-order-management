@@ -29,8 +29,8 @@ class Logger {
 		if ( empty( $order_id ) || ! class_exists( 'KlarnaOrderManagement' ) ) {
 			return;
 		}
-
-		$settings = KlarnaOrderManagement::get_instance()->settings->get_settings( $order_id );
+		$kom      = new KlarnaOrderManagement();
+		$settings = $kom->settings->get_settings( $order_id );
 		if ( isset( $settings['kom_debug_log'] ) && 'yes' === $settings['kom_debug_log'] ) {
 			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {

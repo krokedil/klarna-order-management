@@ -76,7 +76,8 @@ class SellersApp {
 			$order->update_meta_data( '_wc_klarna_environment', self::get_klarna_environment( $order->get_payment_method() ) );
 			$order->save();
 
-			$klarna_order = KlarnaOrderManagement::get_instance()->retrieve_klarna_order( $post_id );
+			$kom          = new KlarnaOrderManagement();
+			$klarna_order = $kom->retrieve_klarna_order( $post_id );
 
 			self::populate_klarna_order( $post_id, $klarna_order );
 		}

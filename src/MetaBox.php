@@ -11,7 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the meta box for KOM
  */
 class MetaBox {
-
+	/**
+	 * Klarna Order Management instance.
+	 *
+	 * @var KlarnaOrderManagement
+	 */
+	protected $kom;
 
 	/**
 	 * Class constructor.
@@ -29,6 +34,8 @@ class MetaBox {
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_capture' ), 10, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_cancel' ), 20, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_sync' ), 30, 3 );
+
+		$this->kom = new KlarnaOrderManagement();
 	}
 
 	/**
@@ -63,7 +70,7 @@ class MetaBox {
 		// False if automatic settings are enabled, true if not. If true then show the option.
 		if ( ! empty( $order->get_transaction_id() ) || ! empty( $order->get_meta( '_wc_klarna_order_id', true ) ) ) {
 
-			$klarna_order = KlarnaOrderManagement::get_instance()->retrieve_klarna_order( $order_id );
+			$klarna_order = $this->kom->retrieve_klarna_order( $order_id );
 
 			if ( is_wp_error( $klarna_order ) ) {
 				$this->print_error_content( __( 'Failed to retrieve the order from Klarna.', 'klarna-order-management' ) );
@@ -83,7 +90,7 @@ class MetaBox {
 	public function print_standard_content( $klarna_order ) {
 		$order_id = Utility::get_the_ID();
 		$order    = wc_get_order( $order_id );
-		$settings = KlarnaOrderManagement::get_instance()->settings->get_settings( $order_id );
+		$settings = $this->kom->settings->get_settings( $order_id );
 
 		$actions            = array();
 		$actions['capture'] = ( ! isset( $settings['kom_auto_capture'] ) || 'yes' === $settings['kom_auto_capture'] ) ? false : true;
@@ -414,15 +421,15 @@ class MetaBox {
 		// If we get here, process the action.
 		// Capture order.
 		if ( 'kom_capture' === $kom_action ) {
-			KlarnaOrderManagement::get_instance()->capture_klarna_order( $post_id, true );
+			$this->kom->capture_klarna_order( $post_id, true );
 		}
 		// Cancel order.
 		if ( 'kom_cancel' === $kom_action ) {
-			KlarnaOrderManagement::get_instance()->cancel_klarna_order( $post_id, true );
+			$this->kom->cancel_klarna_order( $post_id, true );
 		}
 		// Sync order.
 		if ( 'kom_sync' === $kom_action ) {
-			$klarna_order = KlarnaOrderManagement::get_instance()->retrieve_klarna_order( $post_id );
+			$klarna_order = $this->kom->retrieve_klarna_order( $post_id );
 			SellersApp::get_instance()->populate_klarna_order( $post_id, $klarna_order );
 		}
 	}

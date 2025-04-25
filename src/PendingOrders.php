@@ -41,8 +41,9 @@ class PendingOrders {
 			return;
 		}
 
+		$kom = new KlarnaOrderManagement();
 		// Check the order status for the klarna order. Bail if it does not exist in order management.
-		$klarna_order = KlarnaOrderManagement::get_instance()->retrieve_klarna_order( $order_id );
+		$klarna_order = $kom->retrieve_klarna_order( $order_id );
 		if ( is_wp_error( $klarna_order ) ) {
 			return;
 		}
