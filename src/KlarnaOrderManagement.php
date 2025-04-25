@@ -88,9 +88,6 @@ class KlarnaOrderManagement {
 	 */
 	public function __construct() {
 		$this->init();
-
-		// Add action links.
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 	}
 
 	/**
@@ -134,7 +131,6 @@ class KlarnaOrderManagement {
 			2
 		);
 
-		add_action( 'before_woocommerce_init', array( $this, 'declare_wc_compatibility' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin' ) );
 	}
 
@@ -144,45 +140,8 @@ class KlarnaOrderManagement {
 	 * @return void
 	 */
 	public function enqueue_admin() {
-		wp_enqueue_style( 'kom-admin-style', plugin_dir_url( __FILE__ ) . '/assets/css/klarna-order-management.css', array(), '1.0.0' );
-		wp_enqueue_script( 'kom-admin-js', plugin_dir_url( __FILE__ ) . '/assets/js/klarna-order-management.js', array( 'jquery' ), '1.0.0', true );
-	}
-
-
-	/**
-	 * Declare compatibility with WooCommerce features.
-	 *
-	 * @return void
-	 */
-	public function declare_wc_compatibility() {
-
-		// Declare HPOS compatibility.
-		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
-		}
-	}
-
-	/**
-	 * Adds plugin action link to Krokedil documentation for KOM.
-	 *
-	 * @param array $links Plugin action link before filtering.
-	 *
-	 * @return array Filtered links.
-	 */
-	public function plugin_action_links( $links ) {
-		$plugin_links = array();
-
-		if ( class_exists( 'KCO' ) ) {
-			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=kco' ) . '">' . __( 'Settings (Klarna Checkout)', 'klarna-order-management' ) . '</a>';
-		}
-
-		if ( class_exists( 'WC_Klarna_Payments' ) ) {
-			$plugin_links[] = '<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=klarna_payments' ) . '">' . __( 'Settings (Klarna Payments)', 'klarna-order-management' ) . '</a>';
-		}
-
-		$plugin_links[] = '<a target="_blank" href="https://docs.krokedil.com/article/149-klarna-order-management">Docs</a>';
-
-		return array_merge( $plugin_links, $links );
+		wp_enqueue_style( 'kom-admin-style', plugin_dir_url( __FILE__ ) . 'assets/css/klarna-order-management.css', array(), '1.0.0' );
+		wp_enqueue_script( 'kom-admin-js', plugin_dir_url( __FILE__ ) . 'assets/js/klarna-order-management.js', array( 'jquery' ), '1.0.0', true );
 	}
 
 	/**
