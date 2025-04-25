@@ -523,5 +523,3 @@ class KlarnaOrderManagement {
 		return $klarna_order;
 	}
 }
-
-KlarnaOrderManagement::get_instance();

@@ -423,8 +423,7 @@ class MetaBox {
 		// Sync order.
 		if ( 'kom_sync' === $kom_action ) {
 			$klarna_order = KlarnaOrderManagement::get_instance()->retrieve_klarna_order( $post_id );
-			SellersApp::populate_klarna_order( $post_id, $klarna_order );
+			SellersApp::get_instance()->populate_klarna_order( $post_id, $klarna_order );
 		}
 	}
 }
-new MetaBox();

@@ -11,11 +11,32 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class to handle sellers app.
  */
 class SellersApp {
+
+	/**
+	 * *Singleton* instance of this class
+	 *
+	 * @var $instance
+	 */
+	private static $instance;
+
 	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
 		add_action( 'wp_insert_post', array( $this, 'process_order_creation' ), 9999, 3 );
+	}
+
+	/**
+	 * Returns the *Singleton* instance of this class.
+	 *
+	 * @return self The *Singleton* instance.
+	 */
+	public static function get_instance() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
 	}
 
 	/**
@@ -277,4 +298,3 @@ class SellersApp {
 		return $shipping_tax_total;
 	}
 }
-new SellersApp();
