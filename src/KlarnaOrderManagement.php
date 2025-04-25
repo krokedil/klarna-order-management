@@ -56,6 +56,18 @@ class KlarnaOrderManagement {
 	 * Init the plugin at plugins_loaded.
 	 */
 	public function init() {
+
+		// If the Klarna Order Management plugin is active, do nothing.
+		if ( class_exists( 'WC_Klarna_Order_Management' ) ) {
+			add_action(
+				'admin_notices',
+				function () {
+					echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
+				}
+			);
+			return;
+		}
+
 		$this->settings = new Settings();
 		$this->metabox  = new MetaBox();
 
