@@ -31,13 +31,6 @@ use Krokedil\KlarnaOrderManagement\MetaBox;
 class KlarnaOrderManagement {
 
 	/**
-	 * *Singleton* instance of this class
-	 *
-	 * @var $instance
-	 */
-	private static $instance;
-
-	/**
 	 * Klarna Order Management settings.
 	 *
 	 * @var Settings $settings
@@ -50,37 +43,6 @@ class KlarnaOrderManagement {
 	 * @var MetaBox $metabox
 	 */
 	public $metabox;
-
-	/**
-	 * Returns the *Singleton* instance of this class.
-	 *
-	 * @return self The *Singleton* instance.
-	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
-			self::$instance = new self();
-		}
-
-		return self::$instance;
-	}
-
-	/**
-	 * Private clone method to prevent cloning of the instance of the
-	 * *Singleton* instance.
-	 *
-	 * @return void
-	 */
-	private function __clone() {
-	}
-
-	/**
-	 * Private unserialize method to prevent unserializing of the *Singleton*
-	 * instance.
-	 *
-	 * @return void
-	 */
-	public function __wakeup() {
-	}
 
 	/**
 	 * Protected constructor to prevent creating a new instance of the
@@ -166,7 +128,7 @@ class KlarnaOrderManagement {
 	 * @return bool|WP_Error Returns bool true if cancellation was successful or a WP_Error object if not.
 	 */
 	public function cancel_klarna_order( $order_id, $action = false ) {
-		$options = self::get_instance()->settings->get_settings( $order_id );
+		$options = $this->settings->get_settings( $order_id );
 		if ( ! isset( $options['kom_auto_cancel'] ) || 'yes' === $options['kom_auto_cancel'] || $action ) {
 			$order = wc_get_order( $order_id );
 
@@ -240,7 +202,7 @@ class KlarnaOrderManagement {
 	 * @return WP_Error|true Returns true if updating was successful or a WP_Error object if not.
 	 */
 	public function update_klarna_order_items( $order_id, $items, $action = false ) {
-		$options = self::get_instance()->settings->get_settings( $order_id );
+		$options = $this->settings->get_settings( $order_id );
 		$order   = wc_get_order( $order_id );
 
 		if ( ! in_array( $order->get_payment_method(), array( 'klarna_payments', 'kco' ), true ) ) {
@@ -338,7 +300,7 @@ class KlarnaOrderManagement {
 	 * @return bool|WP_Error Returns bool true if capture was successful or a WP_Error object if not.
 	 */
 	public function capture_klarna_order( $order_id, $action = false ) {
-		$options = self::get_instance()->settings->get_settings( $order_id );
+		$options = $this->settings->get_settings( $order_id );
 		$order   = wc_get_order( $order_id );
 
 		if ( ! isset( $options['kom_auto_capture'] ) || 'yes' === $options['kom_auto_capture'] || $action ) {
