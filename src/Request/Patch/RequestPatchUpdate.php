@@ -38,6 +38,8 @@ class RequestPatchUpdate extends RequestPatch {
 	 */
 	protected function get_body() {
 		$lines_processor = new OrderLines( $this->order_id );
-		return $lines_processor->order_lines();
+		$data            = $lines_processor->order_lines();
+
+		return apply_filters( 'kom_order_update_args', $data, $this->order_id );
 	}
 }
