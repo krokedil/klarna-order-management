@@ -21,7 +21,7 @@ class MetaBox {
 	/**
 	 * Class constructor.
 	 */
-	public function __construct() {
+	public function __construct( $kom ) {
 		add_action( 'add_meta_boxes', array( $this, 'kom_meta_box' ) );
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'process_kom_actions' ), 45, 2 );
 
@@ -35,7 +35,7 @@ class MetaBox {
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_cancel' ), 20, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_sync' ), 30, 3 );
 
-		$this->kom = new KlarnaOrderManagement();
+		$this->kom = $kom;
 	}
 
 	/**

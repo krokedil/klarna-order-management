@@ -69,7 +69,7 @@ class KlarnaOrderManagement {
 		}
 
 		$this->settings = new Settings();
-		$this->metabox  = new MetaBox();
+		$this->metabox  = new MetaBox( $this );
 
 		// If Klarna Order Management is an unavailable feature, do not include the rest of the plugin.
 		$kp_unavailable_feature_ids = get_option( 'kp_unavailable_feature_ids', array() );
