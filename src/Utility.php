@@ -64,4 +64,17 @@ class Utility {
 		}
 		return $product_data;
 	}
+
+	/**
+	 * Check the plugin instance.
+	 *
+	 * @param string $order_payment_method The payment method of the order.
+	 */
+	public static function check_plugin_instance( $order_payment_method ) {
+		$plugin_instance = 'klarna_payments';
+		if ( $order_payment_method && $plugin_instance === $order_payment_method ) {
+			return true;
+		}
+		return false;
+	}
 }

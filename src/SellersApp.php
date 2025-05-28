@@ -69,6 +69,11 @@ class SellersApp {
 			return;
 		}
 
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
+
 		if ( $update && ! empty( $order->get_transaction_id() ) && in_array( $order->get_payment_method(), array( 'kco', 'klarna_payments' ), true ) ) {
 			// Set post metas.
 			$order->update_meta_data( '_wc_klarna_order_id', $order->get_transaction_id() );

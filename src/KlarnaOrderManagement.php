@@ -45,10 +45,19 @@ class KlarnaOrderManagement {
 	public $metabox;
 
 	/**
-	 * Protected constructor to prevent creating a new instance of the
-	 * *Singleton* via the `new` operator from outside of this class.
+	 * Klarna Order Management plugin instance.
+	 *
+	 * @var object $plugin_instance
 	 */
-	public function __construct() {
+	public $plugin_instance;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param object $plugin_instance The Klarna for WooCommerce plugin instance.
+	 */
+	public function __construct( $plugin_instance = 'klarna_payments' ) {
+		$this->plugin_instance = $plugin_instance;
 		$this->init();
 	}
 
@@ -68,18 +77,26 @@ class KlarnaOrderManagement {
 			return;
 		}
 
-		$this->settings = new Settings();
-		$this->metabox  = new MetaBox( $this );
-
 		// If Klarna Order Management is an unavailable feature, do not include the rest of the plugin.
 		$kp_unavailable_feature_ids = get_option( 'kp_unavailable_feature_ids', array() );
 		if ( in_array( 'kom', $kp_unavailable_feature_ids, true ) ) {
 			return;
 		}
 
-		// Add refunds support to Klarna Payments and Klarna Checkout gateways.
-		add_action( 'wc_klarna_payments_supports', array( $this, 'add_gateway_support' ) );
-		add_action( 'kco_wc_supports', array( $this, 'add_gateway_support' ) );
+		$this->settings = new Settings();
+		$this->metabox  = new MetaBox( $this );
+
+		// Add refunds support to Klarna Payments or Klarna Checkout gateways. If not one of these plugins, do nothing.
+		switch ( $this->plugin_instance ) {
+			case 'klarna_payments':
+				add_action( 'wc_klarna_payments_supports', array( $this, 'add_gateway_support' ) );
+				break;
+			case 'kco':
+				add_action( 'kco_wc_supports', array( $this, 'add_gateway_support' ) );
+				break;
+			default:
+				return;
+		}
 
 		// Cancel order.
 		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_klarna_order' ) );
@@ -140,9 +157,15 @@ class KlarnaOrderManagement {
 	 * @return bool|WP_Error Returns bool true if cancellation was successful or a WP_Error object if not.
 	 */
 	public function cancel_klarna_order( $order_id, $action = false ) {
+
 		$options = $this->settings->get_settings( $order_id );
 		if ( ! isset( $options['kom_auto_cancel'] ) || 'yes' === $options['kom_auto_cancel'] || $action ) {
 			$order = wc_get_order( $order_id );
+
+			// If the order was not paid using the plugin that instanced this class, bail.
+			if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+				return;
+			}
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
@@ -216,6 +239,11 @@ class KlarnaOrderManagement {
 	public function update_klarna_order_items( $order_id, $items, $action = false ) {
 		$options = $this->settings->get_settings( $order_id );
 		$order   = wc_get_order( $order_id );
+
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
 
 		if ( ! in_array( $order->get_payment_method(), array( 'klarna_payments', 'kco' ), true ) ) {
 			return new \WP_Error( 'not_klarna_order', 'Order does not have klarna_payments or kco payment method.' );
@@ -314,6 +342,11 @@ class KlarnaOrderManagement {
 	public function capture_klarna_order( $order_id, $action = false ) {
 		$options = $this->settings->get_settings( $order_id );
 		$order   = wc_get_order( $order_id );
+
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
 
 		if ( ! isset( $options['kom_auto_capture'] ) || 'yes' === $options['kom_auto_capture'] || $action ) {
 
@@ -429,6 +462,12 @@ class KlarnaOrderManagement {
 	 */
 	public function refund_klarna_order( $result, $order_id, $amount = null, $reason = '' ) {
 		$order = wc_get_order( $order_id );
+
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
+
 		// The merchant has disconnected the order from the order manager.
 		if ( $order->get_meta( '_kom_disconnect' ) ) {
 			return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );

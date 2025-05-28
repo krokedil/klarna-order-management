@@ -48,6 +48,12 @@ class MetaBox {
 		if ( in_array( $post_type, array( 'woocommerce_page_wc-orders', 'shop_order' ), true ) ) {
 			$order_id = Utility::get_the_ID();
 			$order    = wc_get_order( $order_id );
+
+			// If the order was not paid using the plugin that instanced this class, bail.
+			if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+				return;
+			}
+
 			if ( in_array( $order->get_payment_method(), array( 'kco', 'klarna_payments' ), true ) ) {
 				add_meta_box( 'kom_meta_box', __( 'Klarna Order Management', 'klarna-order-management' ), array( $this, 'kom_meta_box_content' ), $post_type, 'side', 'core' );
 			}
@@ -62,6 +68,12 @@ class MetaBox {
 	public function kom_meta_box_content() {
 		$order_id = Utility::get_the_ID();
 		$order    = wc_get_order( $order_id );
+
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
+
 		// Check if the order has been paid.
 		if ( empty( $order->get_date_paid() ) && ! in_array( $order->get_status(), array( 'on-hold' ), true ) ) {
 			$this->print_error_content( __( 'The payment has not been finalized with Klarna.', 'klarna-order-management' ) );
@@ -90,6 +102,12 @@ class MetaBox {
 	public function print_standard_content( $klarna_order ) {
 		$order_id = Utility::get_the_ID();
 		$order    = wc_get_order( $order_id );
+
+		// If the order was not paid using the plugin that instanced this class, bail.
+		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			return;
+		}
+
 		$settings = $this->kom->settings->get_settings( $order_id );
 
 		$actions            = array();
