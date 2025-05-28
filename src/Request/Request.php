@@ -62,16 +62,25 @@ abstract class Request {
 	protected $settings;
 
 	/**
+	 * The order management instance.
+	 *
+	 * @var KlarnaOrderManagement
+	 */
+	protected $order_management;
+
+	/**
 	 * Class constructor.
 	 *
-	 * @param array $arguments The request args.
+	 * @param KlarnaOrderManagement $order_management The order management instance.
+	 * @param array                 $arguments The request args.
 	 */
-	public function __construct( $arguments = array() ) {
-		$this->arguments       = $arguments;
-		$this->order_id        = $arguments['order_id'];
-		$this->settings        = $this->get_settings();
-		$this->klarna_order_id = $this->get_klarna_order_id();
-		$this->klarna_order    = array_key_exists( 'klarna_order', $arguments ) ? $arguments['klarna_order'] : false;
+	public function __construct( $arguments = array(), $order_management = null ) {
+		$this->order_management = $order_management;
+		$this->arguments        = $arguments;
+		$this->order_id         = $arguments['order_id'];
+		$this->settings         = $this->get_settings();
+		$this->klarna_order_id  = $this->get_klarna_order_id();
+		$this->klarna_order     = array_key_exists( 'klarna_order', $arguments ) ? $arguments['klarna_order'] : false;
 	}
 
 	/**
@@ -80,8 +89,7 @@ abstract class Request {
 	 * @return array
 	 */
 	private function get_settings() {
-		$kom = new KlarnaOrderManagement();
-		return $kom->settings->get_settings( $this->order_id );
+		return $this->order_management->settings->get_settings( $this->order_id );
 	}
 
 	/**
@@ -366,6 +374,6 @@ abstract class Request {
 	 */
 	protected function log_response( $response, $request_args, $code ) {
 		$log = Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
-		Logger::log( $log, $this->order_id );
+		Logger::log( $log, $this->order_management, $this->order_id );
 	}
 }

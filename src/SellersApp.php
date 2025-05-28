@@ -20,6 +20,13 @@ class SellersApp {
 	private static $instance;
 
 	/**
+	 * Holds the order management instance.
+	 *
+	 * @var KlarnaOrderManagement
+	 */
+	private static $order_management;
+
+	/**
 	 * Class constructor.
 	 */
 	public function __construct() {
@@ -29,9 +36,12 @@ class SellersApp {
 	/**
 	 * Returns the *Singleton* instance of this class.
 	 *
+	 * @param KlarnaOrderManagement $order_management The order management instance.
 	 * @return self The *Singleton* instance.
 	 */
-	public static function get_instance() {
+	public static function get_instance( $order_management ) {
+		self::$order_management = $order_management;
+
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -70,7 +80,7 @@ class SellersApp {
 		}
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( self::$order_management->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -81,8 +91,7 @@ class SellersApp {
 			$order->update_meta_data( '_wc_klarna_environment', self::get_klarna_environment( $order->get_payment_method() ) );
 			$order->save();
 
-			$kom          = new KlarnaOrderManagement();
-			$klarna_order = $kom->retrieve_klarna_order( $post_id );
+			$klarna_order = $this->order_management->retrieve_klarna_order( $post_id );
 
 			self::populate_klarna_order( $post_id, $klarna_order );
 		}
@@ -161,7 +170,7 @@ class SellersApp {
 	 */
 	private static function process_order_lines( $klarna_order, $order ) {
 		$order_id = $order->get_id();
-		Logger::log( 'Processing order lines (from Klarna order) during sellers app creation for Klarna order ID ' . $klarna_order->order_id, $order_id );
+		Logger::log( 'Processing order lines (from Klarna order) during sellers app creation for Klarna order ID ' . $klarna_order->order_id, self::$order_management, $order_id );
 		foreach ( $klarna_order->order_lines as $cart_item ) {
 
 			// Only try to add the item to the order if we got a reference in the Klarna order.
@@ -195,7 +204,7 @@ class SellersApp {
 					$order->add_item( $item );
 
 				} catch ( \Exception $e ) {
-					Logger::log( 'Error during process order lines. Add to cart error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
+					Logger::log( 'Error during process order lines. Add to cart error:   ' . $e->getCode() . ' - ' . $e->getMessage(), self::$order_management, $order_id );
 				}
 			}
 
@@ -216,7 +225,7 @@ class SellersApp {
 					);
 					$order->add_item( $item );
 				} catch ( \Exception $e ) {
-					Logger::log( 'Error during process order lines. Add shipping error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
+					Logger::log( 'Error during process order lines. Add shipping error:   ' . $e->getCode() . ' - ' . $e->getMessage(), self::$order_management, $order_id );
 				}
 			}
 
@@ -238,7 +247,7 @@ class SellersApp {
 					$fee->set_props( $args );
 					$order->add_item( $fee );
 				} catch ( \Exception $e ) {
-					Logger::log( 'Error during process order lines. Add fee error:   ' . $e->getCode() . ' - ' . $e->getMessage(), $order_id );
+					Logger::log( 'Error during process order lines. Add fee error:   ' . $e->getCode() . ' - ' . $e->getMessage(), self::$order_management, $order_id );
 				}
 			}
 		}

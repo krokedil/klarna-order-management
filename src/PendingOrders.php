@@ -41,14 +41,14 @@ class PendingOrders {
 			return;
 		}
 
-		$kom = new KlarnaOrderManagement();
+		$order = wc_get_order( $order_id );
+
+		$order_management = new KlarnaOrderManagement( $order->get_payment_method() );
 		// Check the order status for the klarna order. Bail if it does not exist in order management.
-		$klarna_order = $kom->retrieve_klarna_order( $order_id );
+		$klarna_order = $order_management->retrieve_klarna_order( $order_id );
 		if ( is_wp_error( $klarna_order ) ) {
 			return;
 		}
-
-		$order = wc_get_order( $order_id );
 
 		// If a paid date is set, the order has already been processed. It is therefore not a pending order.
 		if ( ! empty( $order->get_date_paid() ) ) {

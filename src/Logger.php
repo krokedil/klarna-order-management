@@ -22,15 +22,15 @@ class Logger {
 	 * Logs an event.
 	 *
 	 * @param string $data The data string.
+	 * @param object $order_management The order management instance.
 	 * @param int    $order_id WooCommerce order ID.
 	 */
-	public static function log( $data, $order_id = null ) {
+	public static function log( $data, $order_management, $order_id = null ) {
 		// Use default $order_id, and return rather than causing a fatal error if the $order_id is forgotten.
 		if ( empty( $order_id ) || ! class_exists( 'KlarnaOrderManagement' ) ) {
 			return;
 		}
-		$kom      = new KlarnaOrderManagement();
-		$settings = $kom->settings->get_settings( $order_id );
+		$settings = $order_management->settings->get_settings( $order_id );
 		if ( isset( $settings['kom_debug_log'] ) && 'yes' === $settings['kom_debug_log'] ) {
 			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {

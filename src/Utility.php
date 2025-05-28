@@ -68,10 +68,10 @@ class Utility {
 	/**
 	 * Check the plugin instance.
 	 *
+	 * @param string $plugin_instance The plugin instance to check.
 	 * @param string $order_payment_method The payment method of the order.
 	 */
-	public static function check_plugin_instance( $order_payment_method ) {
-		$plugin_instance = 'klarna_payments';
+	public static function check_plugin_instance( $plugin_instance, $order_payment_method ) {
 		if ( $order_payment_method && $plugin_instance === $order_payment_method ) {
 			return true;
 		}

@@ -163,7 +163,7 @@ class KlarnaOrderManagement {
 			$order = wc_get_order( $order_id );
 
 			// If the order was not paid using the plugin that instanced this class, bail.
-			if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
 				return;
 			}
 
@@ -241,7 +241,7 @@ class KlarnaOrderManagement {
 		$order   = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -344,7 +344,7 @@ class KlarnaOrderManagement {
 		$order   = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -414,7 +414,8 @@ class KlarnaOrderManagement {
 						'request'      => 'capture',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					)
+					),
+					$this
 				);
 				$response = $request->request();
 
@@ -464,7 +465,7 @@ class KlarnaOrderManagement {
 		$order = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 

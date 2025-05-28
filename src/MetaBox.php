@@ -16,12 +16,14 @@ class MetaBox {
 	 *
 	 * @var KlarnaOrderManagement
 	 */
-	protected $kom;
+	protected $order_management;
 
 	/**
 	 * Class constructor.
 	 */
-	public function __construct( $kom ) {
+	public function __construct( $order_management ) {
+		$this->order_management = $order_management;
+
 		add_action( 'add_meta_boxes', array( $this, 'kom_meta_box' ) );
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'process_kom_actions' ), 45, 2 );
 
@@ -34,8 +36,6 @@ class MetaBox {
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_capture' ), 10, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_cancel' ), 20, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_sync' ), 30, 3 );
-
-		$this->kom = $kom;
 	}
 
 	/**
@@ -50,7 +50,7 @@ class MetaBox {
 			$order    = wc_get_order( $order_id );
 
 			// If the order was not paid using the plugin that instanced this class, bail.
-			if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+			if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
 				return;
 			}
 
@@ -70,7 +70,7 @@ class MetaBox {
 		$order    = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -82,7 +82,7 @@ class MetaBox {
 		// False if automatic settings are enabled, true if not. If true then show the option.
 		if ( ! empty( $order->get_transaction_id() ) || ! empty( $order->get_meta( '_wc_klarna_order_id', true ) ) ) {
 
-			$klarna_order = $this->kom->retrieve_klarna_order( $order_id );
+			$klarna_order = $this->order_management->retrieve_klarna_order( $order_id );
 
 			if ( is_wp_error( $klarna_order ) ) {
 				$this->print_error_content( __( 'Failed to retrieve the order from Klarna.', 'klarna-order-management' ) );
@@ -104,11 +104,11 @@ class MetaBox {
 		$order    = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
-		$settings = $this->kom->settings->get_settings( $order_id );
+		$settings = $this->order_management->settings->get_settings( $order_id );
 
 		$actions            = array();
 		$actions['capture'] = ( ! isset( $settings['kom_auto_capture'] ) || 'yes' === $settings['kom_auto_capture'] ) ? false : true;
@@ -439,16 +439,16 @@ class MetaBox {
 		// If we get here, process the action.
 		// Capture order.
 		if ( 'kom_capture' === $kom_action ) {
-			$this->kom->capture_klarna_order( $post_id, true );
+			$this->order_management->capture_klarna_order( $post_id, true );
 		}
 		// Cancel order.
 		if ( 'kom_cancel' === $kom_action ) {
-			$this->kom->cancel_klarna_order( $post_id, true );
+			$this->order_management->cancel_klarna_order( $post_id, true );
 		}
 		// Sync order.
 		if ( 'kom_sync' === $kom_action ) {
-			$klarna_order = $this->kom->retrieve_klarna_order( $post_id );
-			SellersApp::get_instance()->populate_klarna_order( $post_id, $klarna_order );
+			$klarna_order = $this->order_management->retrieve_klarna_order( $post_id );
+			SellersApp::get_instance( $this->order_management )->populate_klarna_order( $post_id, $klarna_order );
 		}
 	}
 }
