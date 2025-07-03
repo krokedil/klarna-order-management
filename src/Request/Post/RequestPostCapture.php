@@ -14,13 +14,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class RequestPostCapture extends RequestPost {
 	/**
+	 * The order management instance.
+	 *
+	 * @var KlarnaOrderManagement
+	 */
+	protected $order_management;
+
+	/**
 	 * Class constructor.
 	 *
-	 * @param array $arguments The request arguments.
+	 * @param array                 $arguments The request arguments.
+	 * @param KlarnaOrderManagement $order_management The order management instance.
 	 */
-	public function __construct( $arguments ) {
+	public function __construct( $arguments, $order_management ) {
 		parent::__construct( $arguments );
-		$this->log_title = 'Capture Klarna order';
+		$this->log_title        = 'Capture Klarna order';
+		$this->order_management = $order_management;
 	}
 
 	/**

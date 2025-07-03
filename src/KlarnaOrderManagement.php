@@ -47,14 +47,14 @@ class KlarnaOrderManagement {
 	/**
 	 * Klarna Order Management plugin instance.
 	 *
-	 * @var object $plugin_instance
+	 * @var string $plugin_instance
 	 */
 	public $plugin_instance;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param object $plugin_instance The Klarna for WooCommerce plugin instance.
+	 * @param string $plugin_instance The plugin instance to use, either 'klarna_payments' or 'kco'.
 	 */
 	public function __construct( $plugin_instance = 'klarna_payments' ) {
 		$this->plugin_instance = $plugin_instance;
@@ -163,7 +163,7 @@ class KlarnaOrderManagement {
 			$order = wc_get_order( $order_id );
 
 			// If the order was not paid using the plugin that instanced this class, bail.
-			if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
+			if ( ! Utility::check_plugin_instance( $this->plugin_instance, $order->get_payment_method() ) ) {
 				return;
 			}
 
@@ -241,7 +241,7 @@ class KlarnaOrderManagement {
 		$order   = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -306,7 +306,8 @@ class KlarnaOrderManagement {
 						'request'      => 'update_order_lines',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					)
+					),
+					$this
 				);
 				$response = $request->request();
 				if ( ! is_wp_error( $response ) ) {
@@ -344,7 +345,7 @@ class KlarnaOrderManagement {
 		$order   = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -465,7 +466,7 @@ class KlarnaOrderManagement {
 		$order = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $this->plugin_instance->plugin_instance, $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_instance( $this->plugin_instance, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -530,7 +531,8 @@ class KlarnaOrderManagement {
 		$request      = new RequestGetOrder(
 			array(
 				'order_id' => $order_id,
-			)
+			),
+			$this
 		);
 		$klarna_order = $request->request();
 

@@ -71,8 +71,8 @@ abstract class Request {
 	/**
 	 * Class constructor.
 	 *
-	 * @param KlarnaOrderManagement $order_management The order management instance.
-	 * @param array                 $arguments The request args.
+	 * @param array                      $arguments The request args.
+	 * @param KlarnaOrderManagement|null $order_management The order management instance.
 	 */
 	public function __construct( $arguments = array(), $order_management = null ) {
 		$this->order_management = $order_management;
@@ -374,6 +374,6 @@ abstract class Request {
 	 */
 	protected function log_response( $response, $request_args, $code ) {
 		$log = Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
-		Logger::log( $log, $this->order_management, $this->order_id );
+		Logger::log( $log, $this->order_management->plugin_instance, $this->order_id );
 	}
 }

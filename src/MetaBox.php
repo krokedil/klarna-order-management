@@ -20,6 +20,8 @@ class MetaBox {
 
 	/**
 	 * Class constructor.
+	 *
+	 * @param KlarnaOrderManagement $order_management Klarna Order Management instance.
 	 */
 	public function __construct( $order_management ) {
 		$this->order_management = $order_management;
