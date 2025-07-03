@@ -71,10 +71,10 @@ abstract class Request {
 	/**
 	 * Class constructor.
 	 *
-	 * @param array                      $arguments The request args.
-	 * @param KlarnaOrderManagement|null $order_management The order management instance.
+	 * @param array                 $arguments The request args.
+	 * @param KlarnaOrderManagement $order_management The order management instance.
 	 */
-	public function __construct( $arguments = array(), $order_management = null ) {
+	public function __construct( $arguments = array(), $order_management ) {
 		$this->order_management = $order_management;
 		$this->arguments        = $arguments;
 		$this->order_id         = $arguments['order_id'];

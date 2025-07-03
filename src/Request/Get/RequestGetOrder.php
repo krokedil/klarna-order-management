@@ -14,10 +14,11 @@ class RequestGetOrder extends RequestGet {
 	/**
 	 * Class constructor.
 	 *
-	 * @param array $arguments The request arguments.
+	 * @param array                 $arguments The request arguments.
+	 * @param KlarnaOrderManagement $order_management The order management instance.
 	 */
-	public function __construct( $arguments ) {
-		parent::__construct( $arguments );
+	public function __construct( $arguments, $order_management ) {
+		parent::__construct( $arguments, $order_management );
 		$this->log_title = 'Retrieve Klarna order';
 	}
 

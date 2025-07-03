@@ -207,7 +207,7 @@ class KlarnaOrderManagement {
 				$order->save();
 				return new \WP_Error( 'already_cancelled', 'Klarna order is already cancelled.' );
 			} else {
-				$request  = new RequestPostCancel( array( 'order_id' => $order_id ) );
+				$request  = new RequestPostCancel( array( 'order_id' => $order_id ), $this );
 				$response = $request->request();
 
 				if ( ! is_wp_error( $response ) ) {
@@ -504,7 +504,8 @@ class KlarnaOrderManagement {
 					'order_id'      => $order_id,
 					'refund_amount' => $amount,
 					'refund_reason' => $reason,
-				)
+				),
+				$this
 			);
 			$response = $request->request();
 

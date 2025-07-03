@@ -27,7 +27,7 @@ class RequestPostCapture extends RequestPost {
 	 * @param KlarnaOrderManagement $order_management The order management instance.
 	 */
 	public function __construct( $arguments, $order_management ) {
-		parent::__construct( $arguments );
+		parent::__construct( $arguments, $order_management );
 		$this->log_title        = 'Capture Klarna order';
 		$this->order_management = $order_management;
 	}
