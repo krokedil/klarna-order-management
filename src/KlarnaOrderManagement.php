@@ -169,7 +169,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 			// Check if the order has been paid.
@@ -278,7 +278,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 			// Check if the order has been paid.
@@ -353,7 +353,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 				// Check if the order has been paid.
@@ -472,7 +472,7 @@ class KlarnaOrderManagement {
 
 		// The merchant has disconnected the order from the order manager.
 		if ( $order->get_meta( '_kom_disconnect' ) ) {
-			return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+			return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 		}
 
 		// Not going to do this for non-KP and non-KCO orders.
