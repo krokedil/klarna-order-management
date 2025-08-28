@@ -68,12 +68,16 @@ class KlarnaOrderManagement {
 
 		// If the Klarna Order Management plugin is active, do nothing.
 		if ( class_exists( 'WC_Klarna_Order_Management' ) ) {
-			add_action(
-				'admin_notices',
-				function () {
-					echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
-				}
-			);
+
+			// KCO does not have order management included yet, so we don't want to encourage the disabling of the KOM plugin if KCO is active.
+			if ( ! class_exists( 'KCO' ) ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
+					}
+				);
+			}
 			return;
 		}
 
