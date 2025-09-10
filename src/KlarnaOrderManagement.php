@@ -211,7 +211,7 @@ class KlarnaOrderManagement {
 				$order->save();
 				return new \WP_Error( 'already_cancelled', 'Klarna order is already cancelled.' );
 			} else {
-				$request  = new RequestPostCancel( array( 'order_id' => $order_id ), $this );
+				$request  = new RequestPostCancel( $this, array( 'order_id' => $order_id ) );
 				$response = $request->request();
 
 				if ( ! is_wp_error( $response ) ) {
@@ -306,12 +306,12 @@ class KlarnaOrderManagement {
 
 			if ( ! in_array( $klarna_order->status, array( 'CANCELLED', 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
 				$request  = new RequestPatchUpdate(
+					$this,
 					array(
 						'request'      => 'update_order_lines',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					),
-					$this
+					)
 				);
 				$response = $request->request();
 				if ( ! is_wp_error( $response ) ) {
@@ -415,12 +415,12 @@ class KlarnaOrderManagement {
 				return new \WP_Error( 'pending_fraud_review', 'Order is pending fraud review and cannot be captured.' );
 			} else {
 				$request  = new RequestPostCapture(
+					$this,
 					array(
 						'request'      => 'capture',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					),
-					$this
+					)
 				);
 				$response = $request->request();
 
@@ -504,12 +504,12 @@ class KlarnaOrderManagement {
 
 		if ( in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
 			$request  = new RequestPostRefund(
+				$this,
 				array(
 					'order_id'      => $order_id,
 					'refund_amount' => $amount,
 					'refund_reason' => $reason,
-				),
-				$this
+				)
 			);
 			$response = $request->request();
 
@@ -534,10 +534,10 @@ class KlarnaOrderManagement {
 	 */
 	public function retrieve_klarna_order( $order_id ) {
 		$request      = new RequestGetOrder(
+			$this,
 			array(
 				'order_id' => $order_id,
-			),
-			$this
+			)
 		);
 		$klarna_order = $request->request();
 
