@@ -32,11 +32,11 @@ class RequestPostRefund extends RequestPost {
 	/**
 	 * Class constructor.
 	 *
-	 * @param array                 $arguments The request arguments.
 	 * @param KlarnaOrderManagement $order_management The order management instance.
+	 * @param array                 $arguments The request arguments.
 	 */
-	public function __construct( $arguments, $order_management ) {
-		parent::__construct( $arguments, $order_management );
+	public function __construct( $order_management, $arguments ) {
+		parent::__construct( $order_management, $arguments );
 		$this->log_title     = 'Refund Klarna order';
 		$this->refund_reason = $arguments['refund_reason'];
 		$this->refund_amount = $arguments['refund_amount'];
@@ -110,7 +110,8 @@ class RequestPostRefund extends RequestPost {
 							$order_line_total    = round( ( $order->get_line_subtotal( $order_item, false ) * 100 ) );
 							$order_line_tax      = round( ( $order->get_line_tax( $order_item ) * 100 ) );
 							$tax_rates           = \WC_Tax::get_base_tax_rates( $order_item->get_tax_class() );
-							$order_line_tax_rate = ( 0 !== $order_line_tax && 0 !== $order_line_total ) ? reset( $tax_rates )['rate'] * 100 ?? round( ( $order_line_tax / $order_line_total ) * 100 * 100 ) : 0;
+							$first_tax_rate      = reset( $tax_rates );
+							$order_line_tax_rate = ( 0 !== $order_line_tax && 0 !== $order_line_total ) ? ( $first_tax_rate['rate'] * 100 ?? round( ( $order_line_tax / $order_line_total ) * 100 * 100 ) ) : 0;
 						}
 					}
 

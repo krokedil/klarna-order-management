@@ -110,7 +110,8 @@ class MetaBox {
 			return;
 		}
 
-		$settings = $this->order_management->settings->get_settings( $order_id );
+		$session_id = $order->get_meta( '_kp_session_id' );
+		$settings   = $this->order_management->settings->get_settings( $order_id );
 
 		$actions            = array();
 		$actions['capture'] = ( ! isset( $settings['kom_auto_capture'] ) || 'yes' === $settings['kom_auto_capture'] ) ? false : true;
@@ -161,6 +162,12 @@ class MetaBox {
 					<?php esc_html_e( 'Initial Payment method: ', 'klarna-order-management' ); ?>
 				</strong>
 				<?php echo ( esc_html( apply_filters( 'kom_meta_payment_method', $klarna_order->initial_payment_method->description ) ) ); ?></br>
+
+				<?php
+				if ( ! empty( $session_id ) ) :
+					ScheduledActions::print_scheduled_actions( $session_id );
+				endif;
+				?>
 
 				<ul class="kom_order_actions_wrapper submitbox">
 					<?php if ( $actions['any'] ) : ?>
@@ -452,5 +459,37 @@ class MetaBox {
 			$klarna_order = $this->order_management->retrieve_klarna_order( $post_id );
 			SellersApp::get_instance( $this->order_management )->populate_klarna_order( $post_id, $klarna_order );
 		}
+	}
+
+	/**
+	 * Retrieves scheduled Action Scheduler actions for a given order.
+	 *
+	 * @param int $order_id The ID of the order.
+	 * @return array List of scheduled actions for the order.
+	 */
+	public function get_scheduled_actions_for_order( $order_id ) {
+		if ( ! class_exists( 'ActionScheduler' ) ) {
+			return array();
+		}
+
+		$actions = as_get_scheduled_actions(
+			array(
+				'args'     => array( $order_id ),
+				'per_page' => -1,
+				'status'   => '',
+			)
+		);
+
+		$action_list = array();
+
+		foreach ( $actions as $action ) {
+			$action_list[] = array(
+				'name'      => $action->get_hook(),
+				'status'    => $action->get_status(),
+				'scheduled' => $action->get_scheduled_date()->format( 'Y-m-d H:i:s' ),
+			);
+		}
+
+		return $action_list;
 	}
 }

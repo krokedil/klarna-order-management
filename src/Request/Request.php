@@ -71,10 +71,10 @@ abstract class Request {
 	/**
 	 * Class constructor.
 	 *
-	 * @param array                 $arguments The request args.
 	 * @param KlarnaOrderManagement $order_management The order management instance.
+	 * @param array                 $arguments The request args.
 	 */
-	public function __construct( $arguments = array(), $order_management ) {
+	public function __construct( $order_management, $arguments = array() ) {
 		$this->order_management = $order_management;
 		$this->arguments        = $arguments;
 		$this->order_id         = $arguments['order_id'];
@@ -155,6 +155,40 @@ abstract class Request {
 	}
 
 	/**
+	 * Get the domain to use for the request based on the merchant ID.
+	 *
+	 * @param string $password The shared secret or password to check.
+	 * @param string $username The merchant ID or username to check.
+	 * @param string $klarna_variant The Klarna variant to use (e.g., 'klarna_payments', 'kco').
+	 *
+	 * @return string The domain to use for the request.
+	 */
+	public static function get_api_domain( $password, $username, $klarna_variant = 'klarna_payments' ) {
+		// If the klarna variant is not kco, just return the Klarna domain.
+		if ( 'kco' !== $klarna_variant ) {
+			return 'klarna.com';
+		}
+
+		// If the password starts with 'kco_', or the mid starts with 'M' or 'PM', use kustom.co, otherwise use klarna.com.
+		$password_pattern = '/^kco_/';
+		$mid_pattern      = '/^(M|PM)/';
+
+		$domain = 'klarna.com';
+		if ( preg_match( $password_pattern, $password ) || preg_match( $mid_pattern, $username ) ) {
+			$domain = 'kustom.co';
+		}
+
+		$domain = apply_filters( 'kco_api_domain', $domain, $username );
+
+		// Ensure the return domain is a valid string, and remove any leading or trailing whitespace or slashes.
+		if ( ! is_string( $domain ) || empty( $domain ) ) {
+			$domain = 'klarna.com';
+		}
+
+		return trim( $domain, " \t\n\r\0\x0B/" );
+	}
+
+	/**
 	 * Get the API base URL.
 	 *
 	 * @return string
@@ -162,7 +196,8 @@ abstract class Request {
 	protected function get_api_url_base() {
 		$region     = strtolower( apply_filters( 'klarna_base_region', $this->get_klarna_api_region() ) );
 		$playground = $this->use_playground() ? '.playground' : '';
-		return "https://api{$region}{$playground}.klarna.com/";
+		$domain     = self::get_api_domain( $this->get_auth_component( 'shared_secret' ), $this->get_auth_component( 'merchant_id' ), $this->get_klarna_variant() );
+		return "https://api{$region}{$playground}.{$domain}/";
 	}
 
 	/**
@@ -181,7 +216,7 @@ abstract class Request {
 		$url  = $this->get_request_url();
 		$args = $this->get_request_args();
 		if ( is_wp_error( $args ) || ( isset( $args['body'] ) && is_null( json_decode( $args['body'] ) ) ) ) {
-			return $args;
+			return is_wp_error( $args ) ? $args : new WP_Error( 'invalid_json', __( 'Invalid JSON response from the server.', 'woocommerce' ) );
 		}
 		$response = wp_remote_request( $url, $args );
 		return $this->process_response( $response, $args, $url );
@@ -373,6 +408,13 @@ abstract class Request {
 	 * @return void
 	 */
 	protected function log_response( $response, $request_args, $code ) {
+		foreach ( $request_args['headers'] as $header => $value ) {
+			if ( 'authorization' === strtolower( $header ) ) {
+				// If it is longer than 15 char., it most likely has a token. This is an assumption that is safe even if it is wrong.
+				$request_args['headers'][ $header ] = strlen( $value ) > 15 ? '[REDACTED]' : '[MISSING]';
+				break;
+			}
+		}
 		$log = Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
 		Logger::log( $log, $this->order_management->plugin_instance, $this->order_id );
 	}

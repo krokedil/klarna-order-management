@@ -68,12 +68,16 @@ class KlarnaOrderManagement {
 
 		// If the Klarna Order Management plugin is active, do nothing.
 		if ( class_exists( 'WC_Klarna_Order_Management' ) ) {
-			add_action(
-				'admin_notices',
-				function () {
-					echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
-				}
-			);
+
+			// KCO does not have order management included yet, so we don't want to encourage the disabling of the KOM plugin if KCO is active.
+			if ( ! class_exists( 'KCO' ) ) {
+				add_action(
+					'admin_notices',
+					function () {
+						echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
+					}
+				);
+			}
 			return;
 		}
 
@@ -169,7 +173,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 			// Check if the order has been paid.
@@ -207,7 +211,7 @@ class KlarnaOrderManagement {
 				$order->save();
 				return new \WP_Error( 'already_cancelled', 'Klarna order is already cancelled.' );
 			} else {
-				$request  = new RequestPostCancel( array( 'order_id' => $order_id ), $this );
+				$request  = new RequestPostCancel( $this, array( 'order_id' => $order_id ) );
 				$response = $request->request();
 
 				if ( ! is_wp_error( $response ) ) {
@@ -278,7 +282,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 			// Check if the order has been paid.
@@ -302,12 +306,12 @@ class KlarnaOrderManagement {
 
 			if ( ! in_array( $klarna_order->status, array( 'CANCELLED', 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
 				$request  = new RequestPatchUpdate(
+					$this,
 					array(
 						'request'      => 'update_order_lines',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					),
-					$this
+					)
 				);
 				$response = $request->request();
 				if ( ! is_wp_error( $response ) ) {
@@ -353,7 +357,7 @@ class KlarnaOrderManagement {
 
 			// The merchant has disconnected the order from the order manager.
 			if ( $order->get_meta( '_kom_disconnect' ) ) {
-				return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+				return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 			}
 
 				// Check if the order has been paid.
@@ -411,12 +415,12 @@ class KlarnaOrderManagement {
 				return new \WP_Error( 'pending_fraud_review', 'Order is pending fraud review and cannot be captured.' );
 			} else {
 				$request  = new RequestPostCapture(
+					$this,
 					array(
 						'request'      => 'capture',
 						'order_id'     => $order_id,
 						'klarna_order' => $klarna_order,
-					),
-					$this
+					)
 				);
 				$response = $request->request();
 
@@ -472,7 +476,7 @@ class KlarnaOrderManagement {
 
 		// The merchant has disconnected the order from the order manager.
 		if ( $order->get_meta( '_kom_disconnect' ) ) {
-			return new \WP_Error( 'order_sync_off', 'Order synchronization is disabled' );
+			return new \WP_Error( 'order_sync_off', 'Order management is disabled' );
 		}
 
 		// Not going to do this for non-KP and non-KCO orders.
@@ -500,12 +504,12 @@ class KlarnaOrderManagement {
 
 		if ( in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
 			$request  = new RequestPostRefund(
+				$this,
 				array(
 					'order_id'      => $order_id,
 					'refund_amount' => $amount,
 					'refund_reason' => $reason,
-				),
-				$this
+				)
 			);
 			$response = $request->request();
 
@@ -530,10 +534,10 @@ class KlarnaOrderManagement {
 	 */
 	public function retrieve_klarna_order( $order_id ) {
 		$request      = new RequestGetOrder(
+			$this,
 			array(
 				'order_id' => $order_id,
-			),
-			$this
+			)
 		);
 		$klarna_order = $request->request();
 
