@@ -1,6 +1,8 @@
 <?php
 namespace Krokedil\KlarnaOrderManagement;
 
+use Krokedil\WooCommerce\OrderMetabox;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -10,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles the meta box for KOM
  */
-class MetaBox {
+class MetaBox extends OrderMetabox {
 	/**
 	 * Klarna Order Management instance.
 	 *
@@ -25,6 +27,7 @@ class MetaBox {
 	 */
 	public function __construct( $order_management ) {
 		$this->order_management = $order_management;
+		parent::__construct( 'klarna-om', 'Klarna Order Management', $this->order_management->plugin_instance );
 
 		add_action( 'add_meta_boxes', array( $this, 'kom_meta_box' ) );
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'process_kom_actions' ), 45, 2 );
@@ -38,6 +41,21 @@ class MetaBox {
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_capture' ), 10, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_cancel' ), 20, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_sync' ), 30, 3 );
+	}
+
+	/**
+	 * Render the metabox.
+	 *
+	 * @param \WP_Post|\WC_Order $post The post object or a WC Order for later versions of WooCommerce.
+	 *
+	 * @return void
+	 */
+	public function render_metabox( $post ) {
+		?>
+		<div class="krokedil_wc__metabox">
+			<?php $this->metabox_content( $post ); ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -57,17 +75,26 @@ class MetaBox {
 			}
 
 			if ( in_array( $order->get_payment_method(), array( 'kco', 'klarna_payments' ), true ) ) {
-				add_meta_box( 'kom_meta_box', __( 'Klarna Order Management', 'klarna-order-management' ), array( $this, 'kom_meta_box_content' ), $post_type, 'side', 'core' );
+				add_meta_box(
+					$this->id,
+					$this->title,
+					array( $this, 'render_metabox' ),
+					$post_type,
+					'side',
+					'core'
+				);
 			}
 		}
 	}
 
 	/**
-	 * Adds content for the KOM meta box.
+	 * Render the metabox.
+	 *
+	 * @param WP_Post $post The WordPress post.
 	 *
 	 * @return void
 	 */
-	public function kom_meta_box_content() {
+	public function metabox_content( $post ) {
 		$order_id = Utility::get_the_ID();
 		$order    = wc_get_order( $order_id );
 
