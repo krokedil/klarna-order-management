@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.0.0' );
+define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.0.1' );
 
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_PHP_VER', '5.3.0' );
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_WC_VER', '3.3.0' );
@@ -74,7 +74,20 @@ class KlarnaOrderManagement {
 				add_action(
 					'admin_notices',
 					function () {
-						echo '<div class="notice notice-error"><p>' . esc_html__( 'Klarna Order Management is now included in the Klarna for WooCommerce plugin.', 'klarna-order-management' ) . '</p></div>';
+						?>
+						<div class="notice notice-error">
+				
+								<p><strong><?php esc_html_e( 'Klarna Order Management is now included in Klarna for WooCommerce.', 'klarna-order-management' ); ?></strong></p>
+								<p><?php esc_html_e( 'Starting with version 4.3.0, you no longer need the separate Klarna Order Management plugin – unless you are also using the Kustom Checkout plugin (formerly Klarna Checkout).', 'klarna-order-management' ); ?></p>
+
+								<p>
+									<a href="https://docs.krokedil.com/klarna-for-woocommerce/get-started/order-management/#important-please-read" target="_blank">
+										<?php esc_html_e( 'Read more about this change here.', 'klarna-order-management' ); ?>
+									</a>
+								</p>
+
+						</div>
+						<?php
 					}
 				);
 			}
