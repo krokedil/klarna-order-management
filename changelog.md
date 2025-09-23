@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+------------------
+## [1.0.1] - 2025-09-23
+
 ### Changed
 
 * Enhanced the admin notice to inform users that order management features are now integrated into Klarna for WooCommerce.
 
-------------------
 ## [1.0.0] - 2025-09-15
 
 ### Added
