@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ------------------
+## [1.0.2] - 2025-09-25
+
+### Fixed
+
+* Fixed an issue where High-Performance Order Storage (HPOS) detection did not function correctly.
+
 ## [1.0.1] - 2025-09-23
 
 ### Changed
