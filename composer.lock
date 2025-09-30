@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "695d330315d6eef4ffdee4ef794fbc93",
+    "content-hash": "556a48d5a87a7e7d90bf0910a188055c",
     "packages": [
         {
             "name": "krokedil/woocommerce",
