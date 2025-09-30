@@ -41,6 +41,8 @@ class MetaBox extends OrderMetabox {
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_capture' ), 10, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_cancel' ), 20, 3 );
 		add_action( 'kom_meta_action_tips', array( $this, 'output_tip_sync' ), 30, 3 );
+
+		$this->scripts[] = 'kom-admin-js';
 	}
 
 	/**
@@ -234,20 +236,13 @@ class MetaBox extends OrderMetabox {
 			$order->save();
 		}
 
-		$kom_disconnected_status = $order->get_meta( $kom_disconnected_key ) ? 'disabled' : 'enabled';
-		$kom_disconnected_url    = add_query_arg(
-			array(
-				'kom' => strtolower( $kom_disconnected_status ),
-			),
-			admin_url( 'post.php?post=' . absint( $order->get_id() ) . '&action=edit' )
-		);
-
-		$title   = __( 'Order management', 'klarna-order-management' );
-		$tip     = __( 'Disable this to turn off the automatic synchronization with the Klarna Merchant Portal. When disabled, any changes in either system have to be done manually.', 'klarna-order-management' );
-		$enabled = 'enabled' === $kom_disconnected_status ? false : true;
+		$om_status = $order->get_meta( $kom_disconnected_key ) ? 'disabled' : 'enabled';
+		$title     = __( 'Order management', 'klarna-order-management' );
+		$tip       = __( 'Disable this to turn off the automatic synchronization with the Klarna Merchant Portal. When disabled, any changes in either system have to be done manually.', 'klarna-order-management' );
+		$enabled   = 'enabled' === $om_status ? true : false;
 
 		ob_start();
-		self::output_toggle_switch( $title, $enabled, $tip, 'kom_order_sync--action', array( 'disconnect-url' => esc_url( $kom_disconnected_url ) ) );
+		self::output_toggle_switch( $title, $enabled, $tip, 'kom_order_sync--action', array( 'kom-order-sync' => $om_status ) );
 		return ob_get_clean();
 	}
 
@@ -515,5 +510,28 @@ class MetaBox extends OrderMetabox {
 		}
 
 		return $action_list;
+	}
+
+	/**
+	 * Maybe localize the script with data.
+	 *
+	 * @param string $handle The script handle.
+	 *
+	 * @return void
+	 */
+	public function maybe_localize_script( $handle ) {
+		if ( 'kom-admin-js' === $handle ) {
+			$localize_data = array(
+				'ajax'    => array(
+					'setOrderSync' => array(
+						'url'    => admin_url( 'admin-ajax.php' ),
+						'action' => 'woocommerce_kom_wc_set_order_sync',
+						'nonce'  => wp_create_nonce( 'kom_wc_set_order_sync' ),
+					),
+				),
+				'orderId' => $this->get_id(),
+			);
+			wp_localize_script( 'kom-admin-js', 'komMetaboxParams', $localize_data );
+		}
 	}
 }
