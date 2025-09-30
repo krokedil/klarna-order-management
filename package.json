@@ -1,6 +1,6 @@
 {
     "name": "klarna-order-management",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "author": "Krokedil <info@krokedil.se>",
     "repository": "git@github.com:krokedil/klarna-order-management.git",
     "scripts": {
