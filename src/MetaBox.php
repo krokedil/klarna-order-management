@@ -137,16 +137,88 @@ class MetaBox extends OrderMetabox {
 			return;
 		}
 
-		$session_id = $order->get_meta( '_kp_session_id' );
-		$settings   = $this->order_management->settings->get_settings( $order_id );
+		$session_id  = $order->get_meta( '_kp_session_id' );
+		$environment = ! empty( $order->get_meta( '_wc_klarna_environment' ) ) ? $order->get_meta( '_wc_klarna_environment' ) : '';
+
+		// Output Klarna info using inherited output_info
+		self::output_info(
+			__( 'Klarna Environment', 'klarna-order-management' ),
+			apply_filters( 'kom_meta_environment', $environment )
+		);
+
+		self::output_info(
+			__( 'Klarna order status', 'klarna-order-management' ),
+			apply_filters( 'kom_meta_order_status', $klarna_order->status )
+		);
+
+		self::output_info(
+			__( 'Initial Payment method', 'klarna-order-management' ),
+			apply_filters( 'kom_meta_payment_method', $klarna_order->initial_payment_method->description )
+		);
+
+		if ( ! empty( $session_id ) ) {
+			$scheduled_actions = ScheduledActions::get_scheduled_actions( $session_id );
+			$link_text         = count( $scheduled_actions['complete'] ) . ' completed, ' . count( $scheduled_actions['failed'] ) . ' failed, ' . count( $scheduled_actions['pending'] ) . ' pending';
+			$link_url          = admin_url( 'admin.php?page=wc-status&tab=action-scheduler&s=' . rawurlencode( $session_id ) . '&action=-1&paged=1&action2=-1' );
+
+			self::output_info(
+				__( 'Scheduled actions', 'klarna-order-management' ),
+				'<a target="_blank" href="' . $link_url . '">' . $link_text . '</a>'
+			);
+
+		}
+
+		self::output_actions_dropdown( $order_id, $klarna_order );
+		self::output_collapsable_section( 'kom-advanced', __( 'Advanced', 'klarna-order-management' ), self::get_advanced_section_content( $order ) );
+	}
+
+	/**
+	 * Output the actions dropdown for the metabox.
+	 *
+	 * @param int    $order_id The ID of the order being considered.
+	 * @param object $klarna_order The Klarna order object associated with this order.
+	 */
+	protected function output_actions_dropdown( $order_id, $klarna_order ) {
+		$settings = $this->order_management->settings->get_settings( $order_id );
 
 		$actions            = array();
 		$actions['capture'] = ( ! isset( $settings['kom_auto_capture'] ) || 'yes' === $settings['kom_auto_capture'] ) ? false : true;
 		$actions['cancel']  = ( ! isset( $settings['kom_auto_cancel'] ) || 'yes' === $settings['kom_auto_cancel'] ) ? false : true;
 		$actions['sync']    = ( ! isset( $settings['kom_auto_order_sync'] ) || 'yes' === $settings['kom_auto_order_sync'] ) ? false : true;
 		$actions['any']     = ( $actions['capture'] || $actions['cancel'] || $actions['sync'] );
-		$environment        = ! empty( $order->get_meta( '_wc_klarna_environment' ) ) ? $order->get_meta( '_wc_klarna_environment' ) : '';
 
+		ob_start();
+		?>
+		<ul class="kom_order_actions_wrapper submitbox">
+			<?php if ( $actions['any'] ) : ?>
+				<li class="wide" id="kom-capture">
+					<select class="kco_order_actions" name="kom_order_actions" id="kom_order_actions">
+						<option value=""><?php esc_attr_e( 'Choose an action...', 'woocommerce' ); ?></option>
+						<?php do_action( 'kom_meta_action_options', $order_id, $klarna_order, $actions ); ?>
+					</select>
+					<button class="button wc-reload"><span><?php esc_html_e( 'Apply', 'woocommerce' ); ?></span></button>
+					<span class="woocommerce-help-tip" data-tip="
+					<?php
+					ob_start();
+					do_action( 'kom_meta_action_tips', $order_id, $klarna_order, $actions );
+					echo esc_attr( ob_get_clean() );
+					?>
+					"></span>
+				</li>
+			<?php else : ?>
+				<?php do_action( 'kom_meta_no_actions', $order_id, $klarna_order, $actions ); ?>
+			<?php endif; ?>
+		</ul>
+		<?php
+		echo ob_get_clean();
+	}
+
+	/**
+	 * Output the order management (sync/disconnect) section for the metabox.
+	 *
+	 * @param \WC_Order $order The WooCommerce order object.
+	 */
+	protected function get_advanced_section_content( $order ) {
 		// Release/Disconnect.
 		$kom_disconnected_key = '_kom_disconnect';
 		$kom_disconnect       = isset( $_GET[ $kom_disconnected_key ] ) ? sanitize_key( $_GET[ $kom_disconnected_key ] ) : false;
@@ -167,91 +239,16 @@ class MetaBox extends OrderMetabox {
 			array(
 				'kom' => strtolower( $kom_disconnected_status ),
 			),
-			admin_url( 'post.php?post=' . absint( $order_id ) . '&action=edit' )
+			admin_url( 'post.php?post=' . absint( $order->get_id() ) . '&action=edit' )
 		);
 
-		?>
-		<div class="kom-meta-box-content">
-			<?php do_action( 'kom_meta_begin' ); ?>
-			<?php if ( $klarna_order ) : ?>
+		$title   = __( 'Order management', 'klarna-order-management' );
+		$tip     = __( 'Disable this to turn off the automatic synchronization with the Klarna Merchant Portal. When disabled, any changes in either system have to be done manually.', 'klarna-order-management' );
+		$enabled = 'enabled' === $kom_disconnected_status ? false : true;
 
-				<strong>
-					<?php esc_html_e( 'Klarna Environment: ', 'klarna-order-management' ); ?>
-				</strong>
-				<?php echo ( esc_html( apply_filters( 'kom_meta_environment', $environment ) ) ); ?><br />
-
-				<strong>
-					<?php esc_html_e( 'Klarna order status: ', 'klarna-order-management' ); ?>
-				</strong>
-				<?php echo ( esc_html( apply_filters( 'kom_meta_order_status', $klarna_order->status ) ) ); ?><br />
-
-				<strong>
-					<?php esc_html_e( 'Initial Payment method: ', 'klarna-order-management' ); ?>
-				</strong>
-				<?php echo ( esc_html( apply_filters( 'kom_meta_payment_method', $klarna_order->initial_payment_method->description ) ) ); ?></br>
-
-				<?php
-				if ( ! empty( $session_id ) ) :
-					ScheduledActions::print_scheduled_actions( $session_id );
-				endif;
-				?>
-
-				<ul class="kom_order_actions_wrapper submitbox">
-					<?php if ( $actions['any'] ) : ?>
-						<li class="wide" id="kom-capture">
-							<select class="kco_order_actions" name="kom_order_actions" id="kom_order_actions">
-								<option value="">
-									<?php echo esc_attr( __( 'Choose an action...', 'woocommerce' ) ); ?>
-								</option>
-								<?php do_action( 'kom_meta_action_options', $order_id, $klarna_order, $actions ); ?>
-							</select>
-							<button class="button wc-reload"><span>
-									<?php esc_html_e( 'Apply', 'woocommerce' ); ?>
-								</span></button>
-							<span class="woocommerce-help-tip"
-								data-tip="<?php do_action( 'kom_meta_action_tips', $order_id, $klarna_order, $actions ); ?>"></span>
-						</li>
-					<?php else : ?>
-						<?php do_action( 'kom_meta_no_actions', $order_id, $klarna_order, $actions ); ?>
-					<?php endif; ?>
-				</ul>
-
-
-			<?php else : ?>
-
-				<ul class="kom_order_actions_wrapper submitbox">
-					<?php do_action( 'kom_meta_uncaptured_begin' ); ?>
-					<li class="wide" id="kom-capture">
-						<input type="text" id="klarna_order_id" name="klarna_order_id" class="klarna_order_id"
-							placeholder="Klarna order ID">
-						<button class="button wc-reload"><span>
-								<?php esc_html_e( 'Apply', 'woocommerce' ); ?>
-							</span></button>
-					</li>
-					<?php do_action( 'kom_meta_uncaptured_end' ); ?>
-				</ul>
-			<?php endif; ?>
-
-			<div class="kom_order_sync">
-				<div class="kom_order_sync--box">
-					<div class="kom_order_sync--toggle">
-						<p><label>Order management
-								<?php echo wc_help_tip( __( 'Disable this to turn off the automatic synchronization with the Klarna Merchant Portal. When disabled, any changes in either system have to be done manually.', 'klarna-order-management' ) ); //phpcs:ignore -- string literal. ?>
-							</label></p>
-						<span class="woocommerce-input-toggle woocommerce-input-toggle--<?php echo esc_attr( $kom_disconnected_status ); ?>"></span>
-					</div>
-					<div class="kom_order_sync--action">
-						<a class="button submit_button"
-							href="<?php echo esc_url( wp_nonce_url( $kom_disconnected_url, 'kom_disconnect', $kom_disconnected_key ) ); ?>">
-								<?php esc_attr_e( 'OK' ); ?></a>
-						<a class="button cancel_button">Cancel</a>
-					</div>
-				</div>
-				<a class="kom_order_sync_edit" href="#">Edit</a>
-			</div>
-			<?php do_action( 'kom_meta_end' ); ?>
-		</div>
-		<?php
+		ob_start();
+		self::output_toggle_switch( $title, $enabled, $tip, 'kom_order_sync--action', array( 'disconnect-url' => esc_url( $kom_disconnected_url ) ) );
+		return ob_get_clean();
 	}
 
 	/**

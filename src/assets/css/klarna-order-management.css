@@ -14,6 +14,10 @@
     align-items: center;
 }
 
+.krokedil_wc__metabox .kom_order_sync--toggle .woocommerce-input-toggle {
+    margin-top: 18px;
+}
+
 .krokedil_wc__metabox .kom_order_sync--toggle .woocommerce-help-tip {
     margin: 0;
 }
