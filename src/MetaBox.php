@@ -142,7 +142,6 @@ class MetaBox extends OrderMetabox {
 		$session_id  = $order->get_meta( '_kp_session_id' );
 		$environment = ! empty( $order->get_meta( '_wc_klarna_environment' ) ) ? $order->get_meta( '_wc_klarna_environment' ) : '';
 
-		// Output Klarna info using inherited output_info
 		self::output_info(
 			__( 'Klarna Environment', 'klarna-order-management' ),
 			apply_filters( 'kom_meta_environment', $environment )
