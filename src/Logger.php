@@ -27,14 +27,14 @@ class Logger {
 	 */
 	public static function log( $data, $order_management, $order_id = null ) {
 		// Use default $order_id, and return rather than causing a fatal error if the $order_id is forgotten.
-		if ( empty( $order_id ) || ! class_exists( 'KlarnaOrderManagement' ) ) {
+		if ( empty( $order_id ) ) {
 			return;
 		}
 		$settings = $order_management->settings->get_settings( $order_id );
 		if ( isset( $settings['kom_debug_log'] ) && 'yes' === $settings['kom_debug_log'] ) {
 			$message = self::format_data( $data );
 			if ( empty( self::$log ) ) {
-				self::$log = new Logger();
+				self::$log = new \WC_Logger();
 			}
 			self::$log->add( 'klarna-order-management', wp_json_encode( $message ) );
 		}
