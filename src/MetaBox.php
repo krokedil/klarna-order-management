@@ -90,7 +90,7 @@ class MetaBox extends OrderMetabox {
 	}
 
 	/**
-	 * Render the metabox.
+	 * Render the metabox content.
 	 *
 	 * @param WP_Post $post The WordPress post.
 	 *
