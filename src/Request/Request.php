@@ -416,6 +416,6 @@ abstract class Request {
 			}
 		}
 		$log = Logger::format_log( $this->klarna_order_id, $this->method, $this->log_title, $request_args, $response, $code );
-		Logger::log( $log, $this->order_management->plugin_instance, $this->order_id );
+		Logger::log( $log, $this->order_management, $this->order_id );
 	}
 }

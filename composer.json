@@ -3,7 +3,7 @@
     "name": "krokedil/klarna-order-management",
     "description": "Klarna Order Management",
     "type": "library",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "license": "GPL-v3",
     "autoload": {
         "psr-4": {
