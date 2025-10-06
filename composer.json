@@ -18,12 +18,17 @@
     ],
     "require": {
         "php": "~7.4 || ~8.0",
-        "krokedil/woocommerce": "^1.8.0"
+        "krokedil/woocommerce": "^1.8.0",
+        "krokedil/support": "^1.0.0"
     },
     "repositories": [
         {
             "type": "vcs",
             "url": "git@github.com:krokedil/woocommerce.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:krokedil/support.git"
         }
     ],
     "archive": {
