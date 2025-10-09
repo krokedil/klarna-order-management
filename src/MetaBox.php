@@ -2,6 +2,7 @@
 namespace Krokedil\KlarnaOrderManagement;
 
 use Krokedil\WooCommerce\OrderMetabox;
+use Krokedil\Support\OrderSupport;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -168,7 +169,7 @@ class MetaBox extends OrderMetabox {
 			);
 
 		}
-		self::output_action_button( __( 'Export order for support', 'klarna-order-management' ), '#', true );
+		new OrderSupport()->add_export_order_button( $order_id, true );
 		self::output_actions_dropdown( $order_id, $klarna_order );
 		self::output_collapsable_section( 'kom-advanced', __( 'Advanced', 'klarna-order-management' ), self::get_advanced_section_content( $order ) );
 	}
