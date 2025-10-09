@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed2482d70f94a8085a96b6a834167e87",
+    "content-hash": "1f7d576de1a3b96bce74e2956bddf874",
     "packages": [
         {
             "name": "krokedil/support",
-            "version": "1.0.1",
+            "version": "dev-develop-export-order",
             "source": {
                 "type": "git",
                 "url": "https://github.com/krokedil/support.git",
-                "reference": "0913e5c00fd36f8f9b2b9757eb4c3f4bad6a5dea"
+                "reference": "829547ed9122322e3cbd6138a2218a14cc8b0e57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/krokedil/support/zipball/0913e5c00fd36f8f9b2b9757eb4c3f4bad6a5dea",
-                "reference": "0913e5c00fd36f8f9b2b9757eb4c3f4bad6a5dea",
+                "url": "https://api.github.com/repos/krokedil/support/zipball/829547ed9122322e3cbd6138a2218a14cc8b0e57",
+                "reference": "829547ed9122322e3cbd6138a2218a14cc8b0e57",
                 "shasum": ""
             },
             "require": {
@@ -57,10 +57,10 @@
             ],
             "description": "The support library allows you to extend your plugin with logging that can be optionally toggled through your plugin settings, generate an entry in the system report from your plugin settings, and report issues to the system report.",
             "support": {
-                "source": "https://github.com/krokedil/support/tree/1.0.1",
+                "source": "https://github.com/krokedil/support/tree/develop-export-order",
                 "issues": "https://github.com/krokedil/support/issues"
             },
-            "time": "2025-06-10T08:18:26+00:00"
+            "time": "2025-09-30T10:23:13+00:00"
         },
         {
             "name": "krokedil/woocommerce",
@@ -113,7 +113,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "krokedil/support": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
