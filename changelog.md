@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added filter `kom_skip_scheduled_actions` to allow disabling the display of scheduled actions on the admin order page.
+
+### Added
+
 * Integrated the metabox package to enhance the order management metabox functionality.
 
 ------------------
