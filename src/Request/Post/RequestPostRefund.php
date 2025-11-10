@@ -30,6 +30,13 @@ class RequestPostRefund extends RequestPost {
 	protected $refund_amount;
 
 	/**
+	 * The Return Fee
+	 *
+	 * @var array
+	 */
+	protected $return_fee;
+
+	/**
 	 * Class constructor.
 	 *
 	 * @param KlarnaOrderManagement $order_management The order management instance.
@@ -40,6 +47,7 @@ class RequestPostRefund extends RequestPost {
 		$this->log_title     = 'Refund Klarna order';
 		$this->refund_reason = $arguments['refund_reason'];
 		$this->refund_amount = $arguments['refund_amount'];
+		$this->return_fee    = $arguments['return_fee'] ?? array();
 	}
 
 	/**
@@ -219,6 +227,21 @@ class RequestPostRefund extends RequestPost {
 				);
 
 				$data[] = $sales_tax;
+			}
+
+			// If return fees are set.
+			if ( ! empty( $this->return_fee ) ) {
+				add_filter( 'klarna_applied_return_fees', fn( $fees ) => array_merge( $fees, $this->return_fee ), 10, 1 );
+				$return_fee = array(
+					'type'             => 'return_fee',
+					'name'             => __( 'Return fee', 'klarna-order-management' ),
+					'quantity'         => 1,
+					'unit_price'       => round( -1 * ( abs( $this->return_fee['amount'] + $this->return_fee['tax_amount'] ) * 100 ) ),
+					'total_amount'     => round( -1 * ( abs( $this->return_fee['amount'] + $this->return_fee['tax_amount'] ) * 100 ) ),
+					'total_tax_amount' => round( -1 * ( abs( $this->return_fee['tax_amount'] ) * 100 ) ),
+				);
+
+				$data[] = $return_fee;
 			}
 		}
 
