@@ -584,6 +584,7 @@ class KlarnaOrderManagement {
 				'refund_amount' => $amount,
 				'refund_reason' => $reason,
 				'return_fee'    => $return_fee,
+				'refund_id'     => $refund_order_id,
 			)
 		);
 
@@ -598,7 +599,7 @@ class KlarnaOrderManagement {
 
 		// translators: refund amount, refund id.
 		$text = __( 'Processing a refund of %1$s with Klarna', 'klarna-order-management' );
-		if ( ! empty( $applied_return_fees ) ) {
+		if ( ! empty( floatval( $applied_return_fees['amount'] ?? 0 ) ) ) {
 			$total_return_fee_amount     = $applied_return_fees['amount'] ?? 0;
 			$total_return_fee_tax_amount = $applied_return_fees['tax_amount'] ?? 0;
 			$total_return_fees           = $total_return_fee_amount + $total_return_fee_tax_amount;
@@ -607,12 +608,12 @@ class KlarnaOrderManagement {
 			$formatted_total_return_fees = wc_price( $total_return_fees, array( 'currency' => $order->get_currency() ) );
 
 			// translators: 1: original amount, 2: return fee amount.
-			$extra_text = sprintf( __( ' (original amount of %1$s - return fee of %2$s).', 'klarna-order-management' ), $original_amount, $formatted_total_return_fees );
+			$extra_text = sprintf( __( ' (original amount of %1$s - return fee of %2$s)', 'klarna-order-management' ), $original_amount, $formatted_total_return_fees );
 			$text      .= $extra_text;
 		}
 
 		$formatted_text = sprintf( $text, wc_price( $amount, array( 'currency' => $order->get_currency() ) ) );
-		$order->add_order_note( $formatted_text );
+		$order->add_order_note( "$formatted_text." );
 
 		return true;
 	}
