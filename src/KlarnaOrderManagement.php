@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Required minimums and constants
  */
-define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.0.3' );
+define( 'KLARNA_ORDER_MANAGEMENT_VERSION', '1.1.0' );
 
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_PHP_VER', '5.3.0' );
 define( 'KLARNA_ORDER_MANAGEMENT_MIN_WC_VER', '3.3.0' );

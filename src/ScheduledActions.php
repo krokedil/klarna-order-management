@@ -43,6 +43,12 @@ class ScheduledActions {
 	 * @return void
 	 */
 	public static function print_scheduled_actions( $session_id ) {
+
+		// Allow disabling the display of scheduled actions via a filter.
+		if ( apply_filters( 'kom_skip_scheduled_actions', false ) ) {
+			return;
+		}
+
 		$scheduled_actions = self::get_scheduled_actions( $session_id );
 		$session_query_url = admin_url(
 			'admin.php?page=wc-status&tab=action-scheduler&s=' . rawurlencode( $session_id ) . '&action=-1&paged=1&action2=-1'
