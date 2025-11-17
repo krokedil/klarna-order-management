@@ -46,6 +46,10 @@ class ReturnFee {
 			return;
 		}
 
+		if ( ! $this->is_return_fee_supported_country( $order ) ) {
+			return;
+		}
+
 		if ( ! $order->get_meta( '_wc_klarna_capture_id' ) ) {
 			return;
 		}
@@ -382,6 +386,24 @@ class ReturnFee {
 		}
 
 		return $is_partially_refunded;
+	}
+
+	/**
+	 * Check if the store base country supports return fees.
+	 *
+	 * @param \WC_Order $order The WooCommerce order.
+	 *
+	 * @return bool True if supported, false otherwise.
+	 */
+	private function is_return_fee_supported_country( $order ) {
+		$allowed_countries = array( 'AT', 'DE', 'DK', 'FI', 'FR', 'NL', 'NO', 'SE' );
+		$order_country     = $order->get_billing_country();
+
+		if ( in_array( $order_country, $allowed_countries, true ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
