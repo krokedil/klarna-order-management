@@ -53,6 +53,13 @@ class KlarnaOrderManagement {
 	public $ajax;
 
 	/**
+	 * Klarna Order Management return fee handler.
+	 *
+	 * @var ReturnFee $return_fee
+	 */
+	public $return_fee;
+
+	/**
 	 * Klarna Order Management plugin instance.
 	 *
 	 * @var string $plugin_instance
@@ -108,10 +115,10 @@ class KlarnaOrderManagement {
 			return;
 		}
 
-		$this->settings = new Settings();
-		$this->metabox  = new MetaBox( $this );
-		$this->ajax     = new Ajax();
-		new ReturnFee();
+		$this->settings   = new Settings();
+		$this->metabox    = new MetaBox( $this );
+		$this->ajax       = new Ajax();
+		$this->return_fee = new ReturnFee();
 
 		// Add refunds support to Klarna Payments or Klarna Checkout gateways. If not one of these plugins, do nothing.
 		switch ( $this->plugin_instance ) {
