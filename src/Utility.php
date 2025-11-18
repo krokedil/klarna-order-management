@@ -77,4 +77,24 @@ class Utility {
 		}
 		return false;
 	}
+
+	/**
+	 * Get orders by transaction id, excluding the current order ID.
+	 *
+	 * @param string $transaction_id The transaction ID.
+	 * @param int    $current_order_id The current order ID to exclude.
+	 * @return array The order IDs.
+	 */
+	public static function get_orders_by_transaction_id( $transaction_id, $current_order_id ) {
+
+		$args   = array(
+			'limit'          => -1,
+			'transaction_id' => $transaction_id,
+			'return'         => 'ids',
+			'exclude'        => array( $current_order_id ),
+		);
+		$orders = wc_get_orders( $args );
+
+		return $orders;
+	}
 }

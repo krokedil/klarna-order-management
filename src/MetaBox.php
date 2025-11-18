@@ -169,6 +169,40 @@ class MetaBox extends OrderMetabox {
 			);
 
 		}
+		$transaction_id = $order->get_transaction_id();
+
+		if ( ! empty( $transaction_id ) ) {
+			$orders_with_same_transaction_id = Utility::get_orders_by_transaction_id( $transaction_id, $order_id ) ?? array();
+
+			if ( ! empty( $orders_with_same_transaction_id ) ) {
+				$same_ref_orders_string = '';
+
+				foreach ( $orders_with_same_transaction_id as $related_order_id ) {
+
+					$related_order = wc_get_order( $related_order_id );
+
+					if ( ! $related_order ) {
+						continue;
+					}
+
+					$same_ref_orders_string .= sprintf(
+						'<li><a target="_blank" href="%s">#%s - %s - %s</a></li>',
+						esc_url( admin_url( 'post.php?post=' . $related_order_id . '&action=edit' ) ),
+						esc_html( $related_order_id ),
+						esc_html( $related_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
+						esc_html( wc_get_order_status_name( $related_order->get_status() ) )
+					);
+
+				}
+				if ( ! empty( $same_ref_orders_string ) ) {
+					self::output_info(
+						__( 'Orders with same reference', 'klarna-order-management' ),
+						'<ul>' . $same_ref_orders_string . '</ul>',
+						'These orders share the same Klarna transaction ID.'
+					);
+				}
+			}
+		}
 		( new OrderSupport() )->add_export_order_button( $order, true );
 		self::output_actions_dropdown( $order_id, $klarna_order );
 		self::output_collapsable_section( 'kom-advanced', __( 'Advanced', 'klarna-order-management' ), self::get_advanced_section_content( $order ) );
