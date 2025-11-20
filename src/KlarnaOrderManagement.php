@@ -23,6 +23,8 @@ use Krokedil\KlarnaOrderManagement\Request\Patch\RequestPatchUpdate;
 use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCancel;
 use Krokedil\KlarnaOrderManagement\MetaBox;
 use Krokedil\KlarnaOrderManagement\Ajax;
+use Krokedil\Support\Logger;
+use Krokedil\Support\SystemReport;
 
 /**
  * Klarna Order Management class.
@@ -65,6 +67,20 @@ class KlarnaOrderManagement {
 	 * @var string $plugin_instance
 	 */
 	public $plugin_instance;
+
+	/**
+	 * Logger instance.
+	 *
+	 * @var Logger
+	 */
+	private $logger;
+
+	/**
+	 * SystemReport instance.
+	 *
+	 * @var SystemReport
+	 */
+	private $system_report;
 
 	/**
 	 * Constructor.
@@ -131,6 +147,18 @@ class KlarnaOrderManagement {
 			default:
 				return;
 		}
+
+		$this->logger = new Logger( 'klarna_order_management', wc_string_to_bool( $settings['logging'] ?? false ) );
+		$report_about = array(
+			array( 'id' => 'kom_auto_capture' ),
+			array( 'id' => 'kom_auto_cancel' ),
+			array( 'id' => 'kom_auto_update' ),
+			array( 'id' => 'kom_auto_order_sync' ),
+			array( 'id' => 'kom_force_full_capture' ),
+			array( 'id' => 'kom_debug_log' ),
+
+		);
+		$this->system_report = new SystemReport( $this->plugin_instance, 'Klarna Order Management for WooCommerce', $report_about );
 
 		// Cancel order.
 		add_action( 'woocommerce_order_status_cancelled', array( $this, 'cancel_klarna_order' ) );
@@ -288,7 +316,7 @@ class KlarnaOrderManagement {
 				return new \WP_Error( 'already_cancelled', 'Klarna order is already cancelled.' );
 			} else {
 				$request  = new RequestPostCancel( $this, array( 'order_id' => $order_id ) );
-				$response = $request->request();
+				$response = $this->report()->request( $request->request() );
 
 				if ( ! is_wp_error( $response ) ) {
 					$order->add_order_note( 'Klarna order cancelled.' );
@@ -391,7 +419,7 @@ class KlarnaOrderManagement {
 						'klarna_order' => $klarna_order,
 					)
 				);
-				$response = $request->request();
+				$response = $this->report()->request( $request->request() );
 				if ( ! is_wp_error( $response ) ) {
 					$order->add_order_note( 'Klarna order updated.' );
 					$order->save();
@@ -500,7 +528,7 @@ class KlarnaOrderManagement {
 						'klarna_order' => $klarna_order,
 					)
 				);
-				$response = $request->request();
+				$response = $this->report()->request( $request->request() );
 
 				if ( ! is_wp_error( $response ) ) {
 					$order->add_order_note( 'Klarna order captured. Capture amount: ' . $order->get_formatted_order_total( '', false ) . '. Capture ID: ' . $response );
@@ -580,9 +608,16 @@ class KlarnaOrderManagement {
 			return new \WP_Error( 'object_error', 'Klarna order object is of type WP_Error.', $klarna_order );
 		}
 
-		if ( ! in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
-			$order->add_order_note( 'Klarna order has not been captured and cannot be refunded.' );
-			$order->save();
+		if ( in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
+			$request  = new RequestPostRefund(
+				$this,
+				array(
+					'order_id'      => $order_id,
+					'refund_amount' => $amount,
+					'refund_reason' => $reason,
+				)
+			);
+			$response = $this->report()->request( $request->request() );
 
 			return new \WP_Error( 'not_captured', 'Order has not been captured and cannot be refunded.' );
 		}

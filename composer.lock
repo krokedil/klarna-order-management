@@ -4,12 +4,118 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9f388460548edf033695ea96f6f9508",
-    "packages": [],
+    "content-hash": "1f7d576de1a3b96bce74e2956bddf874",
+    "packages": [
+        {
+            "name": "krokedil/support",
+            "version": "dev-develop-export-order",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/krokedil/support.git",
+                "reference": "829547ed9122322e3cbd6138a2218a14cc8b0e57"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/krokedil/support/zipball/829547ed9122322e3cbd6138a2218a14cc8b0e57",
+                "reference": "829547ed9122322e3cbd6138a2218a14cc8b0e57",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.4 || ~8.0"
+            },
+            "require-dev": {
+                "php-stubs/woocommerce-stubs": "^8.1",
+                "phpcompatibility/php-compatibility": "^9.3",
+                "phpunit/phpunit": "^9.6",
+                "wp-coding-standards/wpcs": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Krokedil\\Support\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpcs": [
+                    "phpcs --extensions=php -s -p"
+                ],
+                "phpcbf": [
+                    "phpcbf -p"
+                ],
+                "phpunit": [
+                    "phpunit --configuration phpunit.xml"
+                ]
+            },
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Krokedil AB",
+                    "email": "info@krokedil.se"
+                }
+            ],
+            "description": "The support library allows you to extend your plugin with logging that can be optionally toggled through your plugin settings, generate an entry in the system report from your plugin settings, and report issues to the system report.",
+            "support": {
+                "source": "https://github.com/krokedil/support/tree/develop-export-order",
+                "issues": "https://github.com/krokedil/support/issues"
+            },
+            "time": "2025-09-30T10:23:13+00:00"
+        },
+        {
+            "name": "krokedil/woocommerce",
+            "version": "1.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/krokedil/woocommerce.git",
+                "reference": "5867595f76b16f17d971d7e668f6cd3a7038ab0a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/krokedil/woocommerce/zipball/5867595f76b16f17d971d7e668f6cd3a7038ab0a",
+                "reference": "5867595f76b16f17d971d7e668f6cd3a7038ab0a",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "^1.0",
+                "php": "~7.4 || ~8.0",
+                "php-stubs/woocommerce-stubs": "^7.2",
+                "php-stubs/wordpress-stubs": "^6.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Krokedil\\WooCommerce\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Krokedil\\WooCommerce\\Tests\\": "tests/"
+                }
+            },
+            "license": [
+                "GPL-V2"
+            ],
+            "authors": [
+                {
+                    "name": "Krokedil AB",
+                    "email": "info@krokedil.se"
+                }
+            ],
+            "description": "A library package for Krokedils plugins that contains helper methods when working with WooCommerce.",
+            "support": {
+                "source": "https://github.com/krokedil/woocommerce/tree/1.9.0",
+                "issues": "https://github.com/krokedil/woocommerce/issues"
+            },
+            "time": "2025-08-29T14:16:04+00:00"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "krokedil/support": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
