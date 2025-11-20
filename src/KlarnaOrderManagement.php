@@ -165,22 +165,21 @@ class KlarnaOrderManagement {
 	 * @return void
 	 */
 	public function enqueue_admin() {
-		wp_enqueue_style( 'kom-admin-style', plugin_dir_url( __FILE__ ) . 'assets/css/klarna-order-management.css', array(), '1.0.0' );
-		wp_enqueue_script( 'kom-admin-js', plugin_dir_url( __FILE__ ) . 'assets/js/klarna-order-management.js', array( 'jquery' ), '1.0.0', true );
+		$order_id = Utility::get_the_ID();
+		if ( empty( $order_id ) ) {
+			return;
+		}
+
+		$order = wc_get_order( $order_id );
+		if ( ! in_array( $order->get_payment_method(), array( 'klarna_payments', 'kco' ), true ) ) {
+			return;
+		}
+
 		if ( isset( $this->metabox ) && method_exists( $this->metabox, 'maybe_localize_script' ) ) {
 			$this->metabox->maybe_localize_script( 'kom-admin-js' );
 		}
 
 		wp_enqueue_style( 'kom-admin-style', KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL . '/assets/css/klarna-order-management.css', array(), KLARNA_ORDER_MANAGEMENT_VERSION );
-
-		// Script Params.
-		$params = array(
-			'ajax_url'                                => admin_url( 'admin-ajax.php' ),
-			'with_return_fee_text'                    => __( 'minus a return fee of', 'klarna-order-management' ),
-			'refund_amount_less_than_return_fee_text' => __( 'Refund amount is less than the return fee.', 'klarna-order-management' ),
-		);
-
-		// Checkout script.
 		wp_register_script(
 			'kom-admin-js',
 			KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL . '/assets/js/klarna-order-management.js',
@@ -189,14 +188,18 @@ class KlarnaOrderManagement {
 			true
 		);
 
-		// Localize the script and add the params.
+		$params = array(
+			'ajax_url'                                => admin_url( 'admin-ajax.php' ),
+			'with_return_fee_text'                    => __( 'minus a return fee of', 'klarna-order-management' ),
+			'refund_amount_less_than_return_fee_text' => __( 'Refund amount is less than the return fee.', 'klarna-order-management' ),
+		);
+
 		wp_localize_script(
 			'kom-admin-js',
 			'kom_admin_params',
 			$params
 		);
 
-		// Enqueue the script.
 		wp_enqueue_script( 'kom-admin-js' );
 	}
 
