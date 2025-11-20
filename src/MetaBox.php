@@ -510,27 +510,4 @@ class MetaBox extends OrderMetabox {
 
 		return $action_list;
 	}
-
-	/**
-	 * Maybe localize the script with data.
-	 *
-	 * @param string $handle The script handle.
-	 *
-	 * @return void
-	 */
-	public function maybe_localize_script( $handle ) {
-		if ( 'kom-admin-js' === $handle ) {
-			$localize_data = array(
-				'ajax'    => array(
-					'setOrderSync' => array(
-						'url'    => admin_url( 'admin-ajax.php' ),
-						'action' => 'woocommerce_kom_wc_set_order_sync',
-						'nonce'  => wp_create_nonce( 'kom_wc_set_order_sync' ),
-					),
-				),
-				'orderId' => $this->get_id(),
-			);
-			wp_localize_script( 'kom-admin-js', 'komMetaboxParams', $localize_data );
-		}
-	}
 }

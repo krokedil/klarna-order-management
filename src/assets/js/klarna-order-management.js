@@ -1,5 +1,5 @@
 /**
- * @var komMetaboxParams
+ * @var komAdminParams
  */
 jQuery( function ( $ ) {
     const format_number = ( unformatted_number ) => {
@@ -59,8 +59,8 @@ jQuery( function ( $ ) {
         },
 
         ajaxSetOrderSync: async function ( omStatus ) {
-            const orderId = komMetaboxParams.orderId
-            const { url, action, nonce } = komMetaboxParams.ajax.setOrderSync
+            const orderId = komAdminParams.orderId
+            const { url, action, nonce } = komAdminParams.ajax.setOrderSync
 
             const data = {
                 nonce: nonce,
@@ -140,7 +140,7 @@ jQuery( function ( $ ) {
 
             // Update the button text with the return fee amount by replacing inner text of the span#klarna_return_fee_total with the refund fee amount.
             $klarnaReturnFeeTotalSpan.text(
-                " (" + kom_admin_params.with_return_fee_text + " " + format_number( returnFeeAmount ) + ")",
+                " (" + komAdminParams.with_return_fee_text + " " + format_number( returnFeeAmount ) + ")",
             )
         },
 
@@ -157,7 +157,7 @@ jQuery( function ( $ ) {
 
             if ( diff < 0 ) {
                 // Show an alert box with the message "Refund amount is less than the return fee amount."
-                window.alert( kom_admin_params.refund_amount_less_than_return_fee_text )
+                window.alert( komAdminParams.refund_amount_less_than_return_fee_text )
 
                 // Pause the default action of the button.
                 e.preventDefault()

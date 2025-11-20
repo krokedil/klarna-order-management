@@ -175,8 +175,26 @@ class KlarnaOrderManagement {
 			return;
 		}
 
-		if ( isset( $this->metabox ) && method_exists( $this->metabox, 'maybe_localize_script' ) ) {
-			$this->metabox->maybe_localize_script( 'kom-admin-js' );
+		$params = array(
+			'ajax_url'                                => admin_url( 'admin-ajax.php' ),
+			'with_return_fee_text'                    => __( 'minus a return fee of', 'klarna-order-management' ),
+			'refund_amount_less_than_return_fee_text' => __( 'Refund amount is less than the return fee.', 'klarna-order-management' ),
+		);
+
+		if ( isset( $this->metabox ) ) {
+			$params = array_merge(
+				$params,
+				array(
+					'ajax'    => array(
+						'setOrderSync' => array(
+							'url'    => admin_url( 'admin-ajax.php' ),
+							'action' => 'woocommerce_kom_wc_set_order_sync',
+							'nonce'  => wp_create_nonce( 'kom_wc_set_order_sync' ),
+						),
+					),
+					'orderId' => $order_id,
+				)
+			);
 		}
 
 		wp_enqueue_style( 'kom-admin-style', KLARNA_ORDER_MANAGEMENT_CHECKOUT_URL . '/assets/css/klarna-order-management.css', array(), KLARNA_ORDER_MANAGEMENT_VERSION );
@@ -188,15 +206,9 @@ class KlarnaOrderManagement {
 			true
 		);
 
-		$params = array(
-			'ajax_url'                                => admin_url( 'admin-ajax.php' ),
-			'with_return_fee_text'                    => __( 'minus a return fee of', 'klarna-order-management' ),
-			'refund_amount_less_than_return_fee_text' => __( 'Refund amount is less than the return fee.', 'klarna-order-management' ),
-		);
-
 		wp_localize_script(
 			'kom-admin-js',
-			'kom_admin_params',
+			'komAdminParams',
 			$params
 		);
 
