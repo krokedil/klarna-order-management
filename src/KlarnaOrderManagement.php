@@ -608,20 +608,6 @@ class KlarnaOrderManagement {
 			return new \WP_Error( 'object_error', 'Klarna order object is of type WP_Error.', $klarna_order );
 		}
 
-		if ( in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
-			$request  = new RequestPostRefund(
-				$this,
-				array(
-					'order_id'      => $order_id,
-					'refund_amount' => $amount,
-					'refund_reason' => $reason,
-				)
-			);
-			$response = $this->report()->request( $request->request() );
-
-			return new \WP_Error( 'not_captured', 'Order has not been captured and cannot be refunded.' );
-		}
-
 		// Get the refund order ID.
 		$refund_order_id = $order->get_refunds()[0]->get_id();
 		$refund_order    = wc_get_order( $refund_order_id );
