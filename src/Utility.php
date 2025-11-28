@@ -79,19 +79,24 @@ class Utility {
 	}
 
 	/**
-	 * Get orders by transaction id, excluding the current order ID.
+	 * Get orders with matching transaction ID within a date range.
 	 *
 	 * @param string $transaction_id The transaction ID.
 	 * @param int    $current_order_id The current order ID to exclude.
 	 * @return array The order IDs.
+	 * @param string $order_date The order date.
 	 */
-	public static function get_orders_by_transaction_id( $transaction_id, $current_order_id ) {
+	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
+		$order_date = new \DateTime( $order_date );
+		$start_date = $order_date->modify( '-7 days' )->format( 'Y-m-d' );
+		$end_date   = $order_date->modify( '+7 days' )->format( 'Y-m-d' );
 
 		$args   = array(
 			'limit'          => -1,
 			'transaction_id' => $transaction_id,
 			'return'         => 'ids',
 			'exclude'        => array( $current_order_id ),
+			'date_created'   => $start_date . '...' . $end_date,
 		);
 		$orders = wc_get_orders( $args );
 
