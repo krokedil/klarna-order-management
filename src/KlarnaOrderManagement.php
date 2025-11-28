@@ -592,7 +592,7 @@ class KlarnaOrderManagement {
 
 		// Do nothing if Klarna order is not captured.
 		if ( ! $order->get_meta( '_wc_klarna_capture_id', true ) ) {
-			$order->add_order_note( 'Klarna order has not been captured and cannot be refunded.' );
+			$order->add_order_note( __( 'Klarna order has not been captured and cannot be refunded.', 'klarna-order-management' ) );
 			$order->save();
 
 			return new \WP_Error( 'not_captured', 'Order has not been captured and cannot be refunded.' );
@@ -602,10 +602,19 @@ class KlarnaOrderManagement {
 		$klarna_order = $this->retrieve_klarna_order( $order_id );
 
 		if ( is_wp_error( $klarna_order ) ) {
-			$order->add_order_note( 'Could not refund Klarna order. ' . $klarna_order->get_error_message() . '.' );
+			// translators: %s Klarna error message.
+			$order->add_order_note( \sprintf( __( 'Could not refund Klarna order. %s.', 'klarna-order-management' ), $klarna_order->get_error_message() ) );
 			$order->save();
 
 			return new \WP_Error( 'object_error', 'Klarna order object is of type WP_Error.', $klarna_order );
+		}
+
+		// We've checked for the metadata `_wc_klarna_capture_id`, now we check for the Klarna status.
+		if ( ! in_array( $klarna_order->status, array( 'CAPTURED', 'PART_CAPTURED' ), true ) ) {
+			$order->add_order_note( __( 'Klarna order has not been captured and cannot be refunded.', 'klarna-order-management' ) );
+			$order->save();
+
+			return new \WP_Error( 'not_captured', 'Order has not been captured and cannot be refunded.' );
 		}
 
 		// Get the refund order ID.
@@ -614,7 +623,7 @@ class KlarnaOrderManagement {
 
 		// Check that the refund order is valid.
 		if ( ! $refund_order ) {
-			$order->add_order_note( 'Could not retrieve the refund order.' );
+			$order->add_order_note( __( 'Could not retrieve the refund order.', 'klarna-order-management' ) );
 			$order->save();
 			return new \WP_Error( 'invalid_refund_order', 'Refund order is not valid.' );
 		}
@@ -633,8 +642,10 @@ class KlarnaOrderManagement {
 
 		$response = $request->request();
 		if ( is_wp_error( $response ) ) {
-			$order->add_order_note( 'Could not refund Klarna order. ' . $response->get_error_message() . '.' );
+			// translators: %s Klarna error message.
+			$order->add_order_note( \sprintf( __( 'Could not refund Klarna order. %s.', 'klarna-order-management' ), $klarna_order->get_error_message() ) );
 			$order->save();
+
 			return new \WP_Error( 'unknown_error', 'Response object is of type WP_Error.', $response );
 		}
 
@@ -642,7 +653,7 @@ class KlarnaOrderManagement {
 
 		// translators: refund amount, refund id.
 		$text = __( 'Processing a refund of %1$s with Klarna', 'klarna-order-management' );
-		if ( ! empty( floatval( $applied_return_fees['amount'] ?? 0 ) ) ) {
+		if ( ! empty( \floatval( $applied_return_fees['amount'] ?? 0 ) ) ) {
 			$total_return_fee_amount     = $applied_return_fees['amount'] ?? 0;
 			$total_return_fee_tax_amount = $applied_return_fees['tax_amount'] ?? 0;
 			$total_return_fees           = $total_return_fee_amount + $total_return_fee_tax_amount;
@@ -651,11 +662,11 @@ class KlarnaOrderManagement {
 			$formatted_total_return_fees = wc_price( $total_return_fees, array( 'currency' => $order->get_currency() ) );
 
 			// translators: 1: original amount, 2: return fee amount.
-			$extra_text = sprintf( __( ' (original amount of %1$s - return fee of %2$s)', 'klarna-order-management' ), $original_amount, $formatted_total_return_fees );
+			$extra_text = \sprintf( __( ' (original amount of %1$s - return fee of %2$s)', 'klarna-order-management' ), $original_amount, $formatted_total_return_fees );
 			$text      .= $extra_text;
 		}
 
-		$formatted_text = sprintf( $text, wc_price( $amount, array( 'currency' => $order->get_currency() ) ) );
+		$formatted_text = \sprintf( $text, wc_price( $amount, array( 'currency' => $order->get_currency() ) ) );
 		$order->add_order_note( "$formatted_text." );
 
 		return true;
