@@ -43,7 +43,7 @@ class Utility {
 	/**
 	 * Get the product and its image URLs.
 	 *
-	 * @param WC_Order_Item_Product $item The order item.
+	 * @param \WC_Order_Item_Product $item The order item.
 	 * @return array The product and image URL if available, otherwise an empty array.
 	 */
 	public static function maybe_add_product_urls( $item ) {
