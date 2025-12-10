@@ -171,38 +171,37 @@ class MetaBox extends OrderMetabox {
 		}
 		$transaction_id = $order->get_transaction_id();
 
-		if ( ! empty( $transaction_id ) ) {
-			$matching_reference_orders = Utility::get_matching_reference_orders( $transaction_id, $order_id, $order->get_date_created() ) ?? array();
+		$matching_reference_orders = Utility::get_matching_reference_orders( $transaction_id, $order_id, $order->get_date_created() ) ?? array();
 
-			if ( ! empty( $matching_reference_orders ) ) {
-				$matching_orders_string = '';
+		if ( ! empty( $matching_reference_orders ) ) {
+			$matching_orders_string = '';
 
-				foreach ( $matching_reference_orders as $matching_order_id ) {
+			foreach ( $matching_reference_orders as $matching_order_id ) {
 
-					$related_order = wc_get_order( $matching_order_id );
+				$related_order = wc_get_order( $matching_order_id );
 
-					if ( ! $related_order ) {
-						continue;
-					}
-
-					$matching_orders_string .= sprintf(
-						'<li><a target="_blank" href="%s">#%s - %s - %s</a></li>',
-						esc_url( admin_url( 'post.php?post=' . $matching_order_id . '&action=edit' ) ),
-						esc_html( $matching_order_id ),
-						esc_html( $related_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
-						esc_html( wc_get_order_status_name( $related_order->get_status() ) )
-					);
-
+				if ( ! $related_order ) {
+					continue;
 				}
-				if ( ! empty( $matching_orders_string ) ) {
-					self::output_info(
-						__( 'Orders with same reference', 'klarna-order-management' ),
-						'<ul>' . $matching_orders_string . '</ul>',
-						'These orders share the same Klarna transaction ID.'
-					);
-				}
+
+				$matching_orders_string .= sprintf(
+					'<li><a target="_blank" href="%s">#%s - %s - %s</a></li>',
+					esc_url( admin_url( 'post.php?post=' . $matching_order_id . '&action=edit' ) ),
+					esc_html( $matching_order_id ),
+					esc_html( $related_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
+					esc_html( wc_get_order_status_name( $related_order->get_status() ) )
+				);
+
+			}
+			if ( ! empty( $matching_orders_string ) ) {
+				self::output_info(
+					__( 'Orders with same reference', 'klarna-order-management' ),
+					'<ul>' . $matching_orders_string . '</ul>',
+					'These orders share the same Klarna transaction ID.'
+				);
 			}
 		}
+
 		( new OrderSupport() )->add_export_order_button( $order, true );
 		self::output_actions_dropdown( $order_id, $klarna_order );
 		self::output_collapsable_section( 'kom-advanced', __( 'Advanced', 'klarna-order-management' ), self::get_advanced_section_content( $order ) );

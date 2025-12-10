@@ -87,6 +87,11 @@ class Utility {
 	 * @param string $order_date The order date.
 	 */
 	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
+
+		if ( empty( $transaction_id ) ) {
+			return array();
+		}
+
 		$order_date = new \DateTime( $order_date );
 		$start_date = $order_date->modify( '-7 days' )->format( 'Y-m-d' );
 		$end_date   = $order_date->modify( '+7 days' )->format( 'Y-m-d' );
