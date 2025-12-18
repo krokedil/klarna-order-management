@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+* Fixed an issue where the return fee text remained on the refund button after removing the return fee amount.
+
 ### Added
 
 * Integrated the support package to enable optional logging, system report entries, and issue reporting.
