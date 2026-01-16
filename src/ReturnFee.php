@@ -8,6 +8,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Handles the return fee functionality for Klarna orders in WooCommerce.
  */
 class ReturnFee {
+	/**
+	 * Refund order IDs to unhook.
+	 *
+	 * @var array
+	 */
+	public $refund_order_ids_to_unhook = array();
 
 	/**
 	 * Class constructor.
@@ -30,6 +36,10 @@ class ReturnFee {
 
 		// Declare refund as partially refunded if the order total is greater than the refund total.
 		add_filter( 'woocommerce_order_is_partially_refunded', array( $this, 'woocommerce_order_is_partially_refunded' ), 10, 3 );
+
+		// Unhook the refunded action temporarily for orders with return fees.
+		add_action( 'woocommerce_order_status_refunded', array( $this, 'maybe_unhook_refund' ), 5 );
+		add_action( 'woocommerce_order_status_refunded', array( $this, 'maybe_rehook_refund' ), 15 );
 	}
 
 	/**
@@ -380,10 +390,26 @@ class ReturnFee {
 			return $is_partially_refunded;
 		}
 
+		// If no payment was refunded, just return the original value.
+		if ( ! $refund_order->get_refunded_payment() ) {
+			return $is_partially_refunded;
+		}
+
+		$refund_total = abs( $refund_order->get_amount() );
+		$return_fee   = $refund_order->get_meta( '_klarna_return_fees' );
+
+		if ( empty( $return_fee ) ) {
+			return $is_partially_refunded;
+		}
+
+		$refund_total += abs( floatval( $return_fee['amount'] ?? 0 ) ) + abs( floatval( $return_fee['tax_amount'] ?? 0 ) );
+
 		// If order total is greater then refund total, then it is partially refunded.
-		if ( $order->get_total() > $refund_order->get_total() ) {
+		if ( abs( $order->get_total() ) > abs( $refund_total ) ) {
 			return true;
 		}
+
+		$this->refund_order_ids_to_unhook[] = $order_id;
 
 		return $is_partially_refunded;
 	}
@@ -420,5 +446,29 @@ class ReturnFee {
 		}
 
 		return false;
+	}
+
+	/** Maybe unhook the refund action temporarily.
+	 *
+	 * @param int $order_id The WooCommerce order ID.
+	 *
+	 * @return void
+	 */
+	public function maybe_unhook_refund( $order_id ) {
+		if ( in_array( $order_id, $this->refund_order_ids_to_unhook, true ) ) {
+			remove_action( 'woocommerce_order_status_refunded', 'wc_order_fully_refunded', 10 );
+		}
+	}
+
+	/** Maybe rehook the refund action.
+	 *
+	 * @param int $order_id The WooCommerce order ID.
+	 *
+	 * @return void
+	 */
+	public function maybe_rehook_refund( $order_id ) {
+		if ( in_array( $order_id, $this->refund_order_ids_to_unhook, true ) ) {
+			add_action( 'woocommerce_order_status_refunded', 'wc_order_fully_refunded', 10 );
+		}
 	}
 }
