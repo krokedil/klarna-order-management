@@ -726,4 +726,13 @@ class KlarnaOrderManagement {
 
 		return $return_fee;
 	}
+
+	/**
+	 * System report.
+	 *
+	 * @return SystemReport
+	 */
+	public function report() {
+		return $this->system_report;
+	}
 }
