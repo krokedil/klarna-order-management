@@ -28,7 +28,7 @@ class MetaBox extends OrderMetabox {
 	 */
 	public function __construct( $order_management ) {
 		$this->order_management = $order_management;
-		parent::__construct( 'klarna-om', 'Klarna Order Management', $this->order_management->plugin_instance );
+		parent::__construct( 'klarna-om', 'Klarna Order Management', $this->order_management->plugin_name );
 
 		add_action( 'add_meta_boxes', array( $this, 'kom_meta_box' ) );
 		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'process_kom_actions' ), 45, 2 );
@@ -73,7 +73,7 @@ class MetaBox extends OrderMetabox {
 			$order    = wc_get_order( $order_id );
 
 			// If the order was not paid using the plugin that instanced this class, bail.
-			if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
+			if ( ! Utility::check_plugin_name( $this->order_management->plugin_name, $order->get_payment_method() ) ) {
 				return;
 			}
 
@@ -102,7 +102,7 @@ class MetaBox extends OrderMetabox {
 		$order    = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_name( $this->order_management->plugin_name, $order->get_payment_method() ) ) {
 			return;
 		}
 
@@ -136,7 +136,7 @@ class MetaBox extends OrderMetabox {
 		$order    = wc_get_order( $order_id );
 
 		// If the order was not paid using the plugin that instanced this class, bail.
-		if ( ! Utility::check_plugin_instance( $this->order_management->plugin_instance, $order->get_payment_method() ) ) {
+		if ( ! Utility::check_plugin_name( $this->order_management->plugin_name, $order->get_payment_method() ) ) {
 			return;
 		}
 
