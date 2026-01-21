@@ -9,10 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+* Fixed an issue where orders with a Klarna fee would not automatically be set to status "refunded" after a full refund.
 * Added a `tax_rate` field to the return fee order line. Thanks to @ValentinOtt for the contribution!
-
-### Fixed
-
 * Fixed an issue where the return fee text remained on the refund button after removing the return fee amount.
 
 ### Added
