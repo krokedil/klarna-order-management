@@ -404,7 +404,7 @@ class ReturnFee {
 
 		$refund_total += abs( floatval( $return_fee['amount'] ?? 0 ) ) + abs( floatval( $return_fee['tax_amount'] ?? 0 ) );
 
-		// If order total is greater then refund total, then it is partially refunded.
+		// If order total is greater than refund total, then it is partially refunded.
 		if ( abs( $order->get_total() ) > abs( $refund_total ) ) {
 			return true;
 		}
