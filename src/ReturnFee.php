@@ -448,7 +448,8 @@ class ReturnFee {
 		return false;
 	}
 
-	/** Maybe unhook the refund action temporarily.
+	/**
+	 * Maybe unhook the refund action temporarily.
 	 *
 	 * @param int $order_id The WooCommerce order ID.
 	 *
@@ -460,7 +461,8 @@ class ReturnFee {
 		}
 	}
 
-	/** Maybe rehook the refund action.
+	/**
+	 * Maybe rehook the refund action.
 	 *
 	 * @param int $order_id The WooCommerce order ID.
 	 *
