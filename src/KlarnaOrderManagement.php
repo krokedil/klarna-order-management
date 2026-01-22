@@ -23,6 +23,7 @@ use Krokedil\KlarnaOrderManagement\Request\Patch\RequestPatchUpdate;
 use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCancel;
 use Krokedil\KlarnaOrderManagement\MetaBox;
 use Krokedil\KlarnaOrderManagement\Ajax;
+use Krokedil\KlarnaOrderManagement\PendingOrders;
 use Krokedil\Support\Logger;
 use Krokedil\Support\SystemReport;
 
@@ -107,7 +108,7 @@ class KlarnaOrderManagement {
 					function () {
 						?>
 						<div class="notice notice-error">
-				
+
 								<p><strong><?php esc_html_e( 'Klarna Order Management is now included in Klarna for WooCommerce.', 'klarna-order-management' ); ?></strong></p>
 								<p><?php esc_html_e( 'Starting with version 4.3.0, you no longer need the separate Klarna Order Management plugin – unless you are also using the Kustom Checkout plugin (formerly Klarna Checkout).', 'klarna-order-management' ); ?></p>
 
