@@ -23,6 +23,7 @@ use Krokedil\KlarnaOrderManagement\Request\Patch\RequestPatchUpdate;
 use Krokedil\KlarnaOrderManagement\Request\Post\RequestPostCancel;
 use Krokedil\KlarnaOrderManagement\MetaBox;
 use Krokedil\KlarnaOrderManagement\Ajax;
+use Krokedil\KlarnaOrderManagement\PendingOrders;
 
 /**
  * Klarna Order Management class.
@@ -141,7 +142,7 @@ class KlarnaOrderManagement {
 		add_action(
 			'wc_klarna_notification_listener',
 			array(
-				'WC_Klarna_Pending_Orders',
+				PendingOrders::class,
 				'notification_listener',
 			),
 			10,
