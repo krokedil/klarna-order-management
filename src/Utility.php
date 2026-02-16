@@ -83,8 +83,9 @@ class Utility {
 	 *
 	 * @param string $transaction_id The transaction ID.
 	 * @param int    $current_order_id The current order ID to exclude.
-	 * @return array The order IDs.
 	 * @param string $order_date The order date.
+	 *
+	 * @return array An array of matching order IDs.
 	 */
 	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
 
@@ -93,11 +94,11 @@ class Utility {
 		}
 
 		$order_date = new \DateTime( $order_date );
-		$start_date = $order_date->modify( '-7 days' )->format( 'Y-m-d' );
-		$end_date   = $order_date->modify( '+7 days' )->format( 'Y-m-d' );
+		$start_date = ( clone $order_date )->modify( '-7 days' )->format( 'Y-m-d' );
+		$end_date   = ( clone $order_date )->modify( '+7 days' )->format( 'Y-m-d' );
 
 		$args   = array(
-			'limit'          => -1,
+			'limit'          => 10,
 			'transaction_id' => $transaction_id,
 			'return'         => 'ids',
 			'exclude'        => array( $current_order_id ),

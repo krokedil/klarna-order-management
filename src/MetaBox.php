@@ -171,7 +171,9 @@ class MetaBox extends OrderMetabox {
 		}
 		$transaction_id = $order->get_transaction_id();
 
-		$matching_reference_orders = Utility::get_matching_reference_orders( $transaction_id, $order_id, $order->get_date_created() ) ?? array();
+		$order_date_created        = $order->get_date_created();
+		$order_date_created_str    = $order_date_created ? $order_date_created->date( 'c' ) : null;
+		$matching_reference_orders = Utility::get_matching_reference_orders( $transaction_id, $order_id, $order_date_created_str ) ?? array();
 
 		if ( ! empty( $matching_reference_orders ) ) {
 			$matching_orders_string = '';
@@ -185,7 +187,7 @@ class MetaBox extends OrderMetabox {
 				}
 
 				$matching_orders_string .= sprintf(
-					'<li><a target="_blank" href="%s">#%s - %s - %s</a></li>',
+					'<li><a target="_blank" rel="noopener noreferrer" href="%s">#%s - %s - %s</a></li>',
 					esc_url( admin_url( 'post.php?post=' . $matching_order_id . '&action=edit' ) ),
 					esc_html( $matching_order_id ),
 					esc_html( $related_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
@@ -197,7 +199,7 @@ class MetaBox extends OrderMetabox {
 				self::output_info(
 					__( 'Orders with same reference', 'klarna-order-management' ),
 					'<ul>' . $matching_orders_string . '</ul>',
-					'These orders share the same Klarna transaction ID.'
+					__( 'These orders share the same Klarna transaction ID.', 'klarna-order-management' )
 				);
 			}
 		}
