@@ -178,13 +178,26 @@ class MetaBox extends OrderMetabox {
 		if ( ! empty( $matching_reference_orders ) ) {
 			$matching_orders_string = '';
 
+			$related_orders = array();
+
+			$related_orders = wc_get_orders(
+				array(
+					'type'    => 'shop_order',
+					'include' => $matching_reference_orders,
+					'limit'   => count( $matching_reference_orders ),
+				)
+			);
+
+			$related_orders_by_id = array();
+			foreach ( $related_orders as $related_order ) {
+				$related_orders_by_id[ $related_order->get_id() ] = $related_order;
+			}
+
 			foreach ( $matching_reference_orders as $matching_order_id ) {
-
-				$related_order = wc_get_order( $matching_order_id );
-
-				if ( ! $related_order ) {
+				if ( ! isset( $related_orders_by_id[ $matching_order_id ] ) ) {
 					continue;
 				}
+				$related_order = $related_orders_by_id[ $matching_order_id ];
 
 				$matching_orders_string .= sprintf(
 					'<li><a target="_blank" rel="noopener noreferrer" href="%s">#%s - %s - %s</a></li>',
