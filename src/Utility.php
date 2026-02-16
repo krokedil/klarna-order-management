@@ -85,7 +85,7 @@ class Utility {
 	 * @param int    $current_order_id The current order ID to exclude.
 	 * @param string $order_date The order date.
 	 *
-	 * @return array An array of matching order IDs.
+	 * @return array An array of matching orders.
 	 */
 	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
 
@@ -100,11 +100,17 @@ class Utility {
 		$args   = array(
 			'limit'          => 10,
 			'transaction_id' => $transaction_id,
-			'return'         => 'ids',
 			'exclude'        => array( $current_order_id ),
 			'date_created'   => $start_date . '...' . $end_date,
 		);
 		$orders = wc_get_orders( $args );
+
+		$orders = array_filter(
+			$orders,
+			function ( $order ) use ( $transaction_id ) {
+				return $order->get_transaction_id() === $transaction_id;
+			}
+		);
 
 		return $orders;
 	}

@@ -178,33 +178,14 @@ class MetaBox extends OrderMetabox {
 		if ( ! empty( $matching_reference_orders ) ) {
 			$matching_orders_string = '';
 
-			$related_orders = array();
-
-			$related_orders = wc_get_orders(
-				array(
-					'type'    => 'shop_order',
-					'include' => $matching_reference_orders,
-					'limit'   => count( $matching_reference_orders ),
-				)
-			);
-
-			$related_orders_by_id = array();
-			foreach ( $related_orders as $related_order ) {
-				$related_orders_by_id[ $related_order->get_id() ] = $related_order;
-			}
-
-			foreach ( $matching_reference_orders as $matching_order_id ) {
-				if ( ! isset( $related_orders_by_id[ $matching_order_id ] ) ) {
-					continue;
-				}
-				$related_order = $related_orders_by_id[ $matching_order_id ];
+			foreach ( $matching_reference_orders as $matching_order ) {
 
 				$matching_orders_string .= sprintf(
 					'<li><a target="_blank" rel="noopener noreferrer" href="%s">#%s - %s - %s</a></li>',
-					esc_url( admin_url( 'post.php?post=' . $matching_order_id . '&action=edit' ) ),
-					esc_html( $matching_order_id ),
-					esc_html( $related_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
-					esc_html( wc_get_order_status_name( $related_order->get_status() ) )
+					esc_url( admin_url( 'post.php?post=' . $matching_order->get_id() . '&action=edit' ) ),
+					esc_html( $matching_order->get_id() ),
+					esc_html( $matching_order->get_date_created()->date( 'Y-m-d H:i:s' ) ),
+					esc_html( wc_get_order_status_name( $matching_order->get_status() ) )
 				);
 
 			}
