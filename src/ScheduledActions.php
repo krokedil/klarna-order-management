@@ -23,18 +23,24 @@ class ScheduledActions {
 		$statuses          = array( 'complete', 'failed', 'pending' );
 		$scheduled_actions = array();
 
-		foreach ( $statuses as $status ) {
-			$scheduled_actions[ $status ] = as_get_scheduled_actions(
-				array(
-					'search'       => $session_id,
-					'status'       => array( $status ),
-					'per_page'     => -1,
-					'hook'         => 'kp_wc_authorization',
-					'date'         => $order_created_date,
-					'date_compare' => '>=',
-				),
-				'ids'
-			);
+		$order_created_timestamp = strtotime( $order_created_date );
+		$three_months_ago        = strtotime( '-3 months' );
+
+		if ( $order_created_timestamp >= $three_months_ago ) {
+			foreach ( $statuses as $status ) {
+				$scheduled_actions[ $status ] = as_get_scheduled_actions(
+					array(
+						'search'       => $session_id,
+						'status'       => array( $status ),
+						'per_page'     => -1,
+						'hook'         => 'kp_wc_authorization',
+						'group'        => 'klarna_authorization',
+						'date'         => $order_created_date,
+						'date_compare' => '>=',
+					),
+					'ids'
+				);
+			}
 		}
 
 		return $scheduled_actions;
