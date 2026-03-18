@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added a "Transaction duplicates" section to the Klarna Order Management admin metabox to show other WooCommerce orders sharing the same Klarna transaction ID, helping merchants identify related or duplicate orders. The filter `kom_skip_matching_reference_orders` allows the disabling of this feature.
+
 * Integrated the support package to enable optional logging, system report entries, and issue reporting.
 
 ------------------
