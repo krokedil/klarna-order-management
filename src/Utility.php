@@ -89,6 +89,11 @@ class Utility {
 	 */
 	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
 
+		// Allow disabling the display of matching reference orders via a filter.
+		if ( apply_filters( 'kom_skip_matching_reference_orders', false ) ) {
+			return;
+		}
+
 		if ( empty( $transaction_id ) ) {
 			return array();
 		}
