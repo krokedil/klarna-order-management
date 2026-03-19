@@ -77,4 +77,46 @@ class Utility {
 		}
 		return false;
 	}
+
+	/**
+	 * Get orders with matching transaction ID within a date range.
+	 *
+	 * @param string $transaction_id The transaction ID.
+	 * @param int    $current_order_id The current order ID to exclude.
+	 * @param string $order_date The order date.
+	 *
+	 * @return array An array of matching orders.
+	 */
+	public static function get_matching_reference_orders( $transaction_id, $current_order_id, $order_date ) {
+
+		// Allow disabling the display of matching reference orders via a filter.
+		if ( apply_filters( 'kom_skip_matching_reference_orders', false ) ) {
+			return;
+		}
+
+		if ( empty( $transaction_id ) ) {
+			return array();
+		}
+
+		$order_date = new \DateTime( $order_date );
+		$start_date = ( clone $order_date )->modify( '-7 days' )->format( 'Y-m-d' );
+		$end_date   = ( clone $order_date )->modify( '+7 days' )->format( 'Y-m-d' );
+
+		$args   = array(
+			'limit'          => 10,
+			'transaction_id' => $transaction_id,
+			'exclude'        => array( $current_order_id ),
+			'date_created'   => $start_date . '...' . $end_date,
+		);
+		$orders = wc_get_orders( $args );
+
+		$orders = array_filter(
+			$orders,
+			function ( $order ) use ( $transaction_id ) {
+				return $order->get_transaction_id() === $transaction_id;
+			}
+		);
+
+		return $orders;
+	}
 }
